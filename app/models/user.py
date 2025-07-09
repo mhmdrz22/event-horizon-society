@@ -5,9 +5,9 @@ from sqlalchemy.sql import func
 from app.db.base_class import Base
 
 class UserRole(enum.Enum):
-    REGULAR = "regular"
-    MEMBER = "member"
-    ADMIN = "admin"
+    STUDENT = "دانشجو"
+    ASSOCIATION_MEMBER = "عضو انجمن"
+    ASSOCIATION_ADMIN = "مدیر انجمن"
 
 class User(Base):
     __tablename__ = "users" # Explicitly defining, though Base would default to "users"
@@ -18,7 +18,7 @@ class User(Base):
     student_id = Column(String(50), unique=True, index=True, nullable=True) # Assuming student_id can be optional for some users initially
     phone_number = Column(String(20), unique=True, index=True, nullable=True) # Assuming phone_number can be optional
 
-    role = Column(DBEnum(UserRole), default=UserRole.REGULAR, nullable=False)
+    role = Column(DBEnum(UserRole), default=UserRole.STUDENT, nullable=False)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now(), nullable=False)

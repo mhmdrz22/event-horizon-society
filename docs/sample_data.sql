@@ -7,10 +7,11 @@ BEGIN;
 -- For testing, if using raw SQL, you might insert known test hashes.
 -- Hashed password for 'password123' (example bcrypt hash, generate properly in app)
 -- UserRole enum values: 'regular', 'member', 'admin'
+-- UserRole enum values: 'دانشجو', 'عضو انجمن', 'مدیر انجمن'
 INSERT INTO users (id, full_name, email, password_hash, student_id, phone_number, role, created_at, updated_at) VALUES
-(1, 'Admin User', 'admin@example.com', '$2b$12$DUMMYHASHADMINLMNOPQRSTU.Vabcdefghijklmnopqrstuv.abcdefghijkl', 'admin001', '+989120000001', 'admin', NOW(), NOW()),
-(2, 'Member User', 'member@example.com', '$2b$12$DUMMYHASHMEMBERLMNOPQRS.Tabcdefghijklmnopqrstuv.abcdefghijkl', 'member001', '+989120000002', 'member', NOW(), NOW()),
-(3, 'Regular User', 'user@example.com', '$2b$12$DUMMYHASHREGULARLMNOPQR.Sabcdefghijklmnopqrstuv.abcdefghijkl', 'user001', '+989120000003', 'regular', NOW(), NOW());
+(1, 'مدیر سیستم', 'admin@example.com', '$2b$12$DUMMYHASHADMINLMNOPQRSTU.Vabcdefghijklmnopqrstuv.abcdefghijkl', 'admin001', '+989120000001', 'مدیر انجمن', NOW(), NOW()),
+(2, 'عضو نمونه', 'member@example.com', '$2b$12$DUMMYHASHMEMBERLMNOPQRS.Tabcdefghijklmnopqrstuv.abcdefghijkl', 'member001', '+989120000002', 'عضو انجمن', NOW(), NOW()),
+(3, 'دانشجوی نمونه', 'student@example.com', '$2b$12$DUMMYHASHREGULARLMNOPQR.Sabcdefghijklmnopqrstuv.abcdefghijkl', 'user001', '+989120000003', 'دانشجو', NOW(), NOW());
 
 -- News
 -- NewsStatus enum values: 'draft', 'published'
