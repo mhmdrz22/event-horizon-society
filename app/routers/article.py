@@ -26,7 +26,7 @@ def create_article(
     *,
     db: Session = Depends(get_db),
     article_in: schemas.ArticleCreate,
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.user.User = Depends(get_current_user),
 ) -> Any:
     """
     Create new article.
@@ -53,7 +53,7 @@ def update_article(
     db: Session = Depends(get_db),
     article_id: int,
     article_in: schemas.ArticleUpdate,
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.user.User = Depends(get_current_user),
 ) -> Any:
     """
     Update an article.
@@ -72,7 +72,7 @@ def delete_article(
     *,
     db: Session = Depends(get_db),
     article_id: int,
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.user.User = Depends(get_current_user),
 ) -> Any:
     """
     Delete an article.

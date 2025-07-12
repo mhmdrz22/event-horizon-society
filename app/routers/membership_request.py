@@ -14,7 +14,7 @@ def read_membership_requests(
     db: Session = Depends(get_db),
     skip: int = 0,
     limit: int = 100,
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.user.User = Depends(get_current_user),
 ) -> Any:
     """
     Retrieve membership requests. Admins see all, users see their own.
@@ -32,7 +32,7 @@ def create_membership_request(
     *,
     db: Session = Depends(get_db),
     request_in: schemas.MembershipRequestCreate,
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.user.User = Depends(get_current_user),
 ) -> Any:
     """
     Create new membership request.
@@ -47,7 +47,7 @@ def update_membership_request(
     db: Session = Depends(get_db),
     request_id: int,
     request_in: schemas.MembershipRequestUpdate,
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.user.User = Depends(get_current_user),
 ) -> Any:
     """
     Update a membership request (Approve/Reject).
