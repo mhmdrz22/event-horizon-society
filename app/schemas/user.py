@@ -12,6 +12,7 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: constr(min_length=8) # Basic length validation for password
+    role: ModelUserRole = ModelUserRole.STUDENT # Default role for new users
 
 class UserUpdate(BaseModel): # UserBase makes all fields required by default, for update better to be explicit
     email: Optional[EmailStr] = None
