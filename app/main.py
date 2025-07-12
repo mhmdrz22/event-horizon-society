@@ -1,21 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine
 from app.core.config import settings
-from app.db.base import Base # Import Base and all models
-# Potentially, you might need to explicitly import all your models here
-# if app.db.base doesn't robustly import them due to load order,
-# though app.db.base is designed to handle this.
+from app.db.session import engine, SessionLocal
+from app.db.base import Base
 
-# Create the database engine
-# The connect_args is often needed for SQLite, but usually not for PostgreSQL
-# For PostgreSQL, psycopg2 is the default driver if not specified in URI
-engine = create_engine(settings.SQLALCHEMY_DATABASE_URI, pool_pre_ping=True)
-
-def create_tables():
-    # This will create all tables defined in models that inherit from Base
-    # It's generally recommended to use Alembic for migrations in production
-    # But for development and initial setup, create_all is fine.
+def create_db_and_tables():
     Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
@@ -35,11 +24,12 @@ if settings.BACKEND_CORS_ORIGINS:
     )
 
 @app.on_event("startup")
-async def app_startup():
-    # This is one way to ensure tables are created when the app starts.
-    # Be cautious with this in production if using a more robust migration tool.
-    create_tables()
-    print("Database tables created (if they didn't exist).")
+def on_startup():
+    create_db_and_tables()
+
+from app.routers import auth as auth_router
+
+app.include_router(auth_router.router, prefix=f"{settings.API_V1_STR}/auth", tags=["auth"])
 
 @app.get("/")
 async def root():

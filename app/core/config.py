@@ -13,14 +13,15 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7 # 7 days
 
     # Database settings
-    POSTGRES_SERVER: str = "localhost"
-    POSTGRES_USER: str = "postgres"
-    POSTGRES_PASSWORD: str = "password"
-    POSTGRES_DB: str = "university_association_db"
+    # The default is to use SQLite for simple, local development.
+    # You can override this with a full PostgreSQL DSN in your .env file
+    # For example: DATABASE_URL="postgresql+psycopg2://user:password@host:port/dbname"
+    DATABASE_URL: str = "sqlite:///./university_association.db"
 
+    # The following property is kept for compatibility but the direct DATABASE_URL is preferred.
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:
-        return f"postgresql+psycopg2://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}/{self.POSTGRES_DB}"
+        return self.DATABASE_URL
 
     # Backend CORS origins
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = [
