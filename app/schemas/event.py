@@ -27,6 +27,7 @@ class EventResponse(EventBase): # Renamed from Event to EventResponse for clarit
     created_at: datetime
     updated_at: datetime
     organizer: Optional[User] = None # Embed organizer details
+    is_registered: bool = False # To indicate if the current user is registered
 
     # Pydantic V2 compatibility
     model_config = {"from_attributes": True}

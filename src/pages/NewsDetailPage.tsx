@@ -1,53 +1,31 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ChevronRight, Calendar } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import api from '@/services/api';
 import { toast } from '@/hooks/use-toast';
 import CommentSection from '@/components/common/CommentSection';
+import { News } from '@/schemas/news';
 
-interface Announcement {
-  id: string;
-  title: string;
-  content: string;
-  created_at: string;
-  created_by: string;
-  author: {
-    name: string;
-    email: string;
-  };
-}
-
-const AnnouncementDetailPage: React.FC = () => {
-  const { id } = useParams();
-  const [announcement, setAnnouncement] = useState<Announcement | null>(null);
+const NewsDetailPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const [newsItem, setNewsItem] = useState<News | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchAnnouncement = async () => {
+    const fetchNewsItem = async () => {
       if (!id) return;
 
       try {
-        const { data, error } = await supabase
-          .from('announcements')
-          .select(`
-            *,
-            author:users(name, email)
-          `)
-          .eq('id', id)
-          .single();
-
-        if (error) throw error;
-        
-        setAnnouncement(data as Announcement);
+        const response = await api.get<News>(`/news/${id}`);
+        setNewsItem(response.data);
       } catch (error) {
-        console.error('Error fetching announcement:', error);
+        console.error('Error fetching news item:', error);
         toast({
-          title: 'خطا در بارگذاری اطلاعیه',
+          title: 'خطا در بارگذاری خبر',
           description: 'لطفا دوباره تلاش کنید',
           variant: 'destructive',
         });
@@ -56,7 +34,7 @@ const AnnouncementDetailPage: React.FC = () => {
       }
     };
 
-    fetchAnnouncement();
+    fetchNewsItem();
   }, [id]);
 
   if (isLoading) {
@@ -83,20 +61,19 @@ const AnnouncementDetailPage: React.FC = () => {
     );
   }
 
-  if (!announcement) {
+  if (!newsItem) {
     return (
       <div className="container py-8 px-4 text-center">
-        <h1 className="text-3xl font-bold mb-4 text-navy dark:text-white">اطلاعیه یافت نشد</h1>
-        <p className="mb-6 text-muted-foreground">اطلاعیه مورد نظر یافت نشد یا ممکن است حذف شده باشد.</p>
+        <h1 className="text-3xl font-bold mb-4 text-navy dark:text-white">خبر یافت نشد</h1>
+        <p className="mb-6 text-muted-foreground">خبر مورد نظر یافت نشد یا ممکن است حذف شده باشد.</p>
         <Link to="/announcements">
-          <Button>بازگشت به لیست اطلاعیه‌ها</Button>
+          <Button>بازگشت به لیست اخبار</Button>
         </Link>
       </div>
     );
   }
 
-  // Format date for display
-  const formattedDate = new Date(announcement.created_at).toLocaleDateString('fa-IR', {
+  const formattedDate = new Date(newsItem.created_at).toLocaleDateString('fa-IR', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -107,16 +84,16 @@ const AnnouncementDetailPage: React.FC = () => {
       <div className="mb-6">
         <Link to="/announcements" className="flex items-center text-gold hover:underline mb-4">
           <ChevronRight className="mr-1 h-4 w-4 rotate-180" />
-          بازگشت به لیست اطلاعیه‌ها
+          بازگشت به لیست اخبار
         </Link>
-        <h1 className="text-3xl font-bold mb-2 text-navy dark:text-white">{announcement.title}</h1>
+        <h1 className="text-3xl font-bold mb-2 text-navy dark:text-white">{newsItem.title}</h1>
         
         <div className="flex items-center space-x-4 space-x-reverse mb-6">
           <div className="flex items-center">
             <Avatar className="h-8 w-8 mr-2">
-              <AvatarFallback>{announcement.author?.name?.charAt(0) || announcement.author?.email?.charAt(0) || '?'}</AvatarFallback>
+              <AvatarFallback>{newsItem.author?.full_name?.charAt(0) || '?'}</AvatarFallback>
             </Avatar>
-            <span className="text-sm text-muted-foreground">{announcement.author?.name || announcement.author?.email}</span>
+            <span className="text-sm text-muted-foreground">{newsItem.author?.full_name}</span>
           </div>
           <div className="flex items-center text-sm text-muted-foreground">
             <Calendar className="h-4 w-4 ml-1" />
@@ -128,15 +105,14 @@ const AnnouncementDetailPage: React.FC = () => {
       <Card>
         <CardContent className="p-6">
           <div className="prose dark:prose-invert max-w-none whitespace-pre-line">
-            {announcement.content}
+            {newsItem.content}
           </div>
         </CardContent>
       </Card>
 
-      {/* Comment Section */}
-      <CommentSection contentType="announcement" contentId={announcement.id} />
+      <CommentSection contentType="news" contentId={newsItem.id} />
     </div>
   );
 };
 
-export default AnnouncementDetailPage;
+export default NewsDetailPage;
