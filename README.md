@@ -1,73 +1,110 @@
-# Welcome to your Lovable project
+# University Scientific Association Management System
 
-## Project info
+This is a comprehensive management system for a university's scientific association, built with a modern tech stack. The platform allows students and faculty to engage with the association's activities, including news, events, and article submissions.
 
-**URL**: https://lovable.dev/projects/7dbdd7b1-f5a4-4f5c-b322-0b4c1dca7bfc
+## Features
 
-## How can I edit this code?
+- **User Authentication**: Secure user registration and login.
+- **Role-Based Access Control**: Different roles for Students, Association Members, and Admins.
+- **News and Announcements**: Admins and members can publish news and announcements.
+- **Event Management**: Create and manage events, with user registration functionality.
+- **Article Submissions**: Users can submit articles for review by the association.
+- **Commenting System**: Users can comment on news and events.
+- **Admin Dashboard**: A dedicated dashboard for admins to manage users, content, and submissions.
 
-There are several ways of editing your application.
+## Tech Stack
 
-**Use Lovable**
+- **Frontend**: React, Vite, TypeScript, Shadcn/ui, Tailwind CSS
+- **Backend**: FastAPI, Python
+- **Database**: PostgreSQL (production), SQLite (development)
+- **ORM**: SQLAlchemy
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/7dbdd7b1-f5a4-4f5c-b322-0b4c1dca7bfc) and start prompting.
+## Getting Started
 
-Changes made via Lovable will be committed automatically to this repo.
+### Prerequisites
 
-**Use your preferred IDE**
+- Node.js (v18.18+ or v20+)
+- Python 3.10+
+- Poetry (for Python dependency management)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Installation & Setup
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/your-username/event-horizon-society.git
+    cd event-horizon-society
+    ```
 
-Follow these steps:
+2.  **Setup Backend:**
+    ```bash
+    # Navigate to the backend directory
+    cd app
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+    # Create a virtual environment
+    python -m venv venv
+    source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+    # Install Python dependencies
+    pip install -r requirements.txt
+    ```
 
-# Step 3: Install the necessary dependencies.
-npm i
+3.  **Setup Frontend:**
+    ```bash
+    # Navigate back to the root directory
+    cd ..
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+    # Install frontend dependencies
+    npm install
+    ```
+
+4.  **Environment Variables:**
+    - Create a `.env` file in the root directory by copying `.env.example`.
+    - Fill in the necessary environment variables, especially the `SECRET_KEY` for JWT. For local development with SQLite, no other database variables are needed.
+
+### Running the Application
+
+1.  **Run the Backend Server:**
+    ```bash
+    uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+    ```
+    The API will be available at `http://localhost:8000`.
+
+2.  **Run the Frontend Development Server:**
+    ```bash
+    npm run dev
+    ```
+    The frontend will be available at `http://localhost:5173`.
+
+## Project Structure
+
+```
+/
+├── app/                  # FastAPI backend
+│   ├── core/             # Core logic, settings
+│   ├── db/               # Database session, base model
+│   ├── models/           # SQLAlchemy models
+│   ├── routers/          # API routers
+│   ├── schemas/          # Pydantic schemas
+│   ├── services/         # Business logic services
+│   └── main.py           # Main FastAPI app
+├── public/               # Public assets
+├── src/                  # React frontend source
+│   ├── components/       # Reusable components
+│   ├── contexts/         # React contexts (e.g., Auth)
+│   ├── hooks/            # Custom React hooks
+│   ├── pages/            # Page components
+│   ├── schemas/          # TypeScript types/interfaces
+│   ├── services/         # API service layer
+│   └── App.tsx           # Main App component with routing
+├── .env.example          # Example environment variables
+├── package.json
+└── ...
 ```
 
-**Edit a file directly in GitHub**
+## Contributing
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Contributions are welcome! Please feel free to submit a pull request or open an issue.
 
-**Use GitHub Codespaces**
+## License
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/7dbdd7b1-f5a4-4f5c-b322-0b4c1dca7bfc) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+This project is licensed under the MIT License.
