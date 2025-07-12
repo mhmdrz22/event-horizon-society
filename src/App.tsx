@@ -8,16 +8,15 @@ import Layout from "./components/layout/Layout";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
-import MfaEnrollPage from "./pages/MfaEnrollPage";
-import AnnouncementsPage from "./pages/AnnouncementsPage";
+import NewsPage from "./pages/NewsPage";
 import EventsPage from "./pages/EventsPage";
 import ProfilePage from "./pages/ProfilePage";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
 import NotFound from "./pages/NotFound";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
-import SubmissionPage from "./pages/SubmissionPage";
-import AnnouncementDetailPage from "./pages/AnnouncementDetailPage";
+import ArticleSubmissionPage from "./pages/ArticleSubmissionPage";
+import NewsDetailPage from "./pages/NewsDetailPage";
 import EventDetailPage from "./pages/EventDetailPage";
 import AdminPage from "./pages/AdminPage";
 import NotificationsPage from "./pages/NotificationsPage";
@@ -35,17 +34,16 @@ const AppWithProviders = () => (
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/unauthorized" element={<UnauthorizedPage />} />
-            <Route path="/announcements" element={<AnnouncementsPage />} />
-            <Route path="/announcements/:id" element={<AnnouncementDetailPage />} />
+            <Route path="/news" element={<NewsPage />} />
+            <Route path="/news/:id" element={<NewsDetailPage />} />
             <Route path="/events" element={<EventsPage />} />
             <Route path="/events/:id" element={<EventDetailPage />} />
             
             {/* Protected routes */}
             <Route element={<ProtectedRoute />}>
-              <Route path="/submission" element={<SubmissionPage />} />
+              <Route path="/submit-article" element={<ArticleSubmissionPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/notifications" element={<NotificationsPage />} />
-              <Route path="/mfa-enroll" element={<MfaEnrollPage />} />
             </Route>
             
             {/* Admin routes */}

@@ -1,5 +1,7 @@
-
-import React, { useState } from 'react';
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -9,237 +11,110 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
-import { z } from 'zod';
 
-// Validation schema
-const nameSchema = z.string().min(2, 'نام باید حداقل 2 کاراکتر باشد');
-const emailSchema = z.string().email('ایمیل وارد شده معتبر نیست');
-const passwordSchema = z.string().min(6, 'رمز عبور باید حداقل 6 کاراکتر باشد');
+const formSchema = z.object({
+  full_name: z.string().min(2, 'نام باید حداقل 2 کاراکتر باشد'),
+  email: z.string().email('ایمیل وارد شده معتبر نیست'),
+  password: z.string().min(8, 'رمز عبور باید حداقل 8 کاراکتر باشد'),
+  student_id: z.string().optional(),
+  phone_number: z.string().optional(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 const SignupPage: React.FC = () => {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  
-  const [firstNameError, setFirstNameError] = useState('');
-  const [lastNameError, setLastNameError] = useState('');
-  const [emailError, setEmailError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const [confirmPasswordError, setConfirmPasswordError] = useState('');
-  
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const { signUp, user } = useAuth();
+  const { signUp, user, loading } = useAuth();
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      full_name: '',
+      email: '',
+      password: '',
+      student_id: '',
+      phone_number: '',
+    },
+  });
 
-  // Redirect if already logged in
   if (user) {
     return <Navigate to="/" replace />;
   }
 
-  const validateForm = () => {
-    let isValid = true;
-
-    // Validate first name
-    try {
-      nameSchema.parse(firstName);
-      setFirstNameError('');
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        setFirstNameError(error.errors[0].message);
-        isValid = false;
-      }
-    }
-
-    // Validate last name
-    try {
-      nameSchema.parse(lastName);
-      setLastNameError('');
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        setLastNameError(error.errors[0].message);
-        isValid = false;
-      }
-    }
-
-    // Validate email
-    try {
-      emailSchema.parse(email);
-      setEmailError('');
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        setEmailError(error.errors[0].message);
-        isValid = false;
-      }
-    }
-
-    // Validate password
-    try {
-      passwordSchema.parse(password);
-      setPasswordError('');
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        setPasswordError(error.errors[0].message);
-        isValid = false;
-      }
-    }
-
-    // Validate password confirmation
-    if (password !== confirmPassword) {
-      setConfirmPasswordError('رمزهای عبور مطابقت ندارند');
-      isValid = false;
-    } else {
-      setConfirmPasswordError('');
-    }
-
-    return isValid;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-    
-    setIsSubmitting(true);
-    
-    try {
-      const fullName = `${firstName} ${lastName}`.trim();
-      await signUp(email, password, fullName);
-    } finally {
-      setIsSubmitting(false);
-    }
+  const onSubmit = async (data: FormValues) => {
+    await signUp(data);
   };
 
   return (
     <div className="container flex items-center justify-center min-h-[80vh] py-8 px-4">
-      <div className="w-full max-w-md">
-        <Card>
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">ایجاد حساب کاربری</CardTitle>
-            <CardDescription className="text-center">
-              اطلاعات خود را برای ایجاد حساب کاربری وارد کنید
-            </CardDescription>
-          </CardHeader>
-          <form onSubmit={handleSubmit}>
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold text-center">ایجاد حساب کاربری</CardTitle>
+          <CardDescription className="text-center">
+            اطلاعات خود را برای ایجاد حساب کاربری وارد کنید
+          </CardDescription>
+        </CardHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">نام</Label>
-                  <Input 
-                    id="firstName" 
-                    value={firstName}
-                    onChange={(e) => {
-                      setFirstName(e.target.value);
-                      if (firstNameError) validateForm();
-                    }}
-                    className={firstNameError ? "border-red-500" : ""}
-                    required 
-                  />
-                  {firstNameError && (
-                    <p className="text-sm text-red-500">{firstNameError}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName">نام خانوادگی</Label>
-                  <Input 
-                    id="lastName" 
-                    value={lastName}
-                    onChange={(e) => {
-                      setLastName(e.target.value);
-                      if (lastNameError) validateForm();
-                    }}
-                    className={lastNameError ? "border-red-500" : ""}
-                    required 
-                  />
-                  {lastNameError && (
-                    <p className="text-sm text-red-500">{lastNameError}</p>
-                  )}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">ایمیل</Label>
-                <Input 
-                  id="email" 
-                  type="email" 
-                  placeholder="your.email@example.com" 
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    if (emailError) validateForm();
-                  }}
-                  className={emailError ? "border-red-500" : ""}
-                  required 
-                />
-                {emailError && (
-                  <p className="text-sm text-red-500">{emailError}</p>
+              <FormField
+                control={form.control}
+                name="full_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>نام کامل</FormLabel>
+                    <FormControl><Input placeholder="نام و نام خانوادگی" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">رمز عبور</Label>
-                <Input 
-                  id="password" 
-                  type="password" 
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    if (passwordError || confirmPasswordError) validateForm();
-                  }}
-                  className={passwordError ? "border-red-500" : ""}
-                  required 
-                />
-                {passwordError && (
-                  <p className="text-sm text-red-500">{passwordError}</p>
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>ایمیل</FormLabel>
+                    <FormControl><Input type="email" placeholder="your.email@example.com" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">تأیید رمز عبور</Label>
-                <Input 
-                  id="confirmPassword" 
-                  type="password" 
-                  value={confirmPassword}
-                  onChange={(e) => {
-                    setConfirmPassword(e.target.value);
-                    if (confirmPasswordError) validateForm();
-                  }}
-                  className={confirmPasswordError ? "border-red-500" : ""}
-                  required 
-                />
-                {confirmPasswordError && (
-                  <p className="text-sm text-red-500">{confirmPasswordError}</p>
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>رمز عبور</FormLabel>
+                    <FormControl><Input type="password" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </div>
+              />
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
-              <Button 
-                type="submit" 
-                className="w-full bg-navy hover:bg-navy/90"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-                    در حال ایجاد حساب...
-                  </>
-                ) : 'ایجاد حساب'}
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : 'ایجاد حساب'}
               </Button>
               <div className="text-center text-sm">
-                قبلاً حساب کاربری ایجاد کرده‌اید؟{" "}
+                قبلاً حساب کاربری ایجاد کرده‌اید؟{' '}
                 <Link to="/login" className="text-gold hover:underline">
                   ورود
                 </Link>
               </div>
             </CardFooter>
           </form>
-        </Card>
-      </div>
+        </Form>
+      </Card>
     </div>
   );
 };

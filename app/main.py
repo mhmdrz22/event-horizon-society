@@ -27,9 +27,27 @@ if settings.BACKEND_CORS_ORIGINS:
 def on_startup():
     create_db_and_tables()
 
-from app.routers import auth as auth_router
+from app.routers import (
+    auth as auth_router,
+    news as news_router,
+    article as article_router,
+    event as event_router,
+    comment as comment_router,
+    membership_request as membership_request_router,
+    event_registration as event_registration_router,
+    user as user_router,
+    notification as notification_router,
+)
 
 app.include_router(auth_router.router, prefix=f"{settings.API_V1_STR}/auth", tags=["auth"])
+app.include_router(news_router.router, prefix=f"{settings.API_V1_STR}/news", tags=["news"])
+app.include_router(article_router.router, prefix=f"{settings.API_V1_STR}/articles", tags=["articles"])
+app.include_router(event_router.router, prefix=f"{settings.API_V1_STR}/events", tags=["events"])
+app.include_router(comment_router.router, prefix=f"{settings.API_V1_STR}/comments", tags=["comments"])
+app.include_router(membership_request_router.router, prefix=f"{settings.API_V1_STR}/membership-requests", tags=["membership-requests"])
+app.include_router(event_registration_router.router, prefix=f"{settings.API_V1_STR}", tags=["event-registrations"]) # No prefix for this one as it has its own
+app.include_router(user_router.router, prefix=f"{settings.API_V1_STR}/users", tags=["users"])
+app.include_router(notification_router.router, prefix=f"{settings.API_V1_STR}/notifications", tags=["notifications"])
 
 @app.get("/")
 async def root():
