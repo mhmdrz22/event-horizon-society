@@ -15,7 +15,7 @@ def register_for_event(
     *,
     event_id: int,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.user.User = Depends(get_current_user),
 ) -> Any:
     """
     Register current user for an event.
@@ -41,7 +41,7 @@ def unregister_from_event(
     *,
     event_id: int,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.user.User = Depends(get_current_user),
 ) -> Any:
     """
     Unregister current user from an event.
@@ -59,7 +59,7 @@ def unregister_from_event(
 def read_user_registrations(
     user_id: int,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.user.User = Depends(get_current_user),
     skip: int = 0,
     limit: int = 100,
 ) -> Any:

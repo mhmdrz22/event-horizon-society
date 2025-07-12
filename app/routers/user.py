@@ -14,7 +14,7 @@ def read_users(
     db: Session = Depends(get_db),
     skip: int = 0,
     limit: int = 100,
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.user.User = Depends(get_current_user),
 ) -> Any:
     """
     Retrieve users. Only admins can do this.
@@ -30,7 +30,7 @@ def update_user_role(
     db: Session = Depends(get_db),
     user_id: int,
     user_in: schemas.UserUpdate,
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.user.User = Depends(get_current_user),
 ) -> Any:
     """
     Update a user's role. Only admins can do this.

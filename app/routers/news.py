@@ -26,7 +26,7 @@ def create_news(
     *,
     db: Session = Depends(get_db),
     news_in: schemas.NewsCreate,
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.user.User = Depends(get_current_user),
 ) -> Any:
     """
     Create new news item.
@@ -54,7 +54,7 @@ def update_news(
     db: Session = Depends(get_db),
     news_id: int,
     news_in: schemas.NewsUpdate,
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.user.User = Depends(get_current_user),
 ) -> Any:
     """
     Update a news item.
@@ -73,7 +73,7 @@ def delete_news(
     *,
     db: Session = Depends(get_db),
     news_id: int,
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.user.User = Depends(get_current_user),
 ) -> Any:
     """
     Delete a news item.

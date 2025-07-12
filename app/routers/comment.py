@@ -33,7 +33,7 @@ def create_comment(
     *,
     db: Session = Depends(get_db),
     comment_in: schemas.CommentCreate,
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.user.User = Depends(get_current_user),
 ) -> Any:
     """
     Create new comment.
@@ -46,7 +46,7 @@ def delete_comment(
     *,
     db: Session = Depends(get_db),
     comment_id: int,
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.user.User = Depends(get_current_user),
 ) -> Any:
     """
     Delete a comment.

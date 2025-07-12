@@ -12,7 +12,7 @@ router = APIRouter()
 @router.get("/", response_model=List[schemas.Notification])
 def read_notifications(
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.user.User = Depends(get_current_user),
     skip: int = 0,
     limit: int = 100,
 ) -> Any:
@@ -28,7 +28,7 @@ def read_notifications(
 def mark_notification_as_read(
     notification_id: int,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.user.User = Depends(get_current_user),
 ) -> Any:
     """
     Mark a specific notification as read.
@@ -47,7 +47,7 @@ def mark_notification_as_read(
 @router.put("/mark-all-as-read", status_code=status.HTTP_204_NO_CONTENT)
 def mark_all_notifications_as_read(
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.user.User = Depends(get_current_user),
 ) -> None:
     """
     Mark all unread notifications for the current user as read.

@@ -26,7 +26,7 @@ def create_event(
     *,
     db: Session = Depends(get_db),
     event_in: schemas.EventCreate,
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.user.User = Depends(get_current_user),
 ) -> Any:
     """
     Create new event.
@@ -43,7 +43,7 @@ from app.services.event_registration_service import event_registration_service
 def read_event_by_id(
     event_id: int,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user_optional),
+    current_user: models.user.User = Depends(get_current_user_optional),
 ) -> Any:
     """
     Get event by ID.
@@ -72,7 +72,7 @@ def update_event(
     db: Session = Depends(get_db),
     event_id: int,
     event_in: schemas.EventUpdate,
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.user.User = Depends(get_current_user),
 ) -> Any:
     """
     Update an event.
@@ -90,7 +90,7 @@ def delete_event(
     *,
     db: Session = Depends(get_db),
     event_id: int,
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.user.User = Depends(get_current_user),
 ) -> Any:
     """
     Delete an event.
