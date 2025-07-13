@@ -9,7 +9,7 @@ from app.services.notification_service import notification_service
 
 router = APIRouter()
 
-@router.get("/", response_model=List[schemas.Notification])
+@router.get("/", response_model=List[schemas.notification.Notification])
 def read_notifications(
     db: Session = Depends(get_db),
     current_user: models.user.User = Depends(get_current_user),
@@ -24,7 +24,7 @@ def read_notifications(
     )
     return notifications
 
-@router.put("/{notification_id}", response_model=schemas.Notification)
+@router.put("/{notification_id}", response_model=schemas.notification.Notification)
 def mark_notification_as_read(
     notification_id: int,
     db: Session = Depends(get_db),
