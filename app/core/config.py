@@ -24,12 +24,11 @@ class Settings(BaseSettings):
         return self.DATABASE_URL
 
     # Backend CORS origins
-    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = [
-        "http://localhost",
-        "http://localhost:3000",
-        "http://localhost:8000",
-        "http://localhost:5173",
-    ]
+    BACKEND_CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000"
+
+    @property
+    def BACKEND_CORS_ORIGINS_LIST(self) -> list[str]:
+        return [origin.strip() for origin in self.BACKEND_CORS_ORIGINS.split(',')]
 
     # Email settings
     SMTP_HOST: Optional[str] = None # Changed from "localhost" to None for more realistic default

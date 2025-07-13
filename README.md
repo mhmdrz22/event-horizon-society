@@ -4,7 +4,7 @@ This is a comprehensive management system for a university's scientific associat
 
 ## Features
 
-- **User Authentication**: Secure user registration and login.
+- **User Authentication**: Secure user registration and login with JWT.
 - **Role-Based Access Control**: Different roles for Students, Association Members, and Admins.
 - **News and Announcements**: Admins and members can publish news and announcements.
 - **Event Management**: Create and manage events, with user registration functionality.
@@ -16,64 +16,68 @@ This is a comprehensive management system for a university's scientific associat
 
 - **Frontend**: React, Vite, TypeScript, Shadcn/ui, Tailwind CSS
 - **Backend**: FastAPI, Python
-- **Database**: PostgreSQL (production), SQLite (development)
+- **Database**: SQLite (for development), easily configurable for PostgreSQL.
 - **ORM**: SQLAlchemy
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js (v18.18+ or v20+)
-- Python 3.10+
-- Poetry (for Python dependency management)
+- **Node.js**: Version `18.18.0`, `20.9.0`, or `22.0.0` and higher. We recommend using [nvm](https://github.com/nvm-sh/nvm) to manage Node.js versions.
+- **Python**: Version 3.10+
+- A virtual environment tool for Python (e.g., `venv`).
 
 ### Installation & Setup
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/your-username/event-horizon-society.git
+    git clone https://github.com/mhmdrz22/event-horizon-society.git
     cd event-horizon-society
     ```
 
 2.  **Setup Backend:**
-    ```bash
-    # Navigate to the backend directory
-    cd app
-
-    # Create a virtual environment
-    python -m venv venv
-    source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
-
-    # Install Python dependencies
-    pip install -r requirements.txt
-    ```
+    - Navigate to the project root.
+    - Create and activate a Python virtual environment:
+      ```bash
+      python -m venv venv
+      source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+      ```
+    - Install Python dependencies from the `requirements.txt` file:
+      ```bash
+      pip install -r requirements.txt
+      ```
 
 3.  **Setup Frontend:**
-    ```bash
-    # Navigate back to the root directory
-    cd ..
-
-    # Install frontend dependencies
-    npm install
-    ```
+    - Make sure you are in the project root.
+    - If you are using `nvm`, run `nvm use` to switch to the correct Node.js version specified in `.nvmrc`.
+    - Install frontend dependencies:
+      ```bash
+      npm install
+      ```
 
 4.  **Environment Variables:**
     - Create a `.env` file in the root directory by copying `.env.example`.
-    - Fill in the necessary environment variables, especially the `SECRET_KEY` for JWT. For local development with SQLite, no other database variables are needed.
+    - Generate a `SECRET_KEY` for JWT using a tool like `openssl rand -hex 32` and add it to your `.env` file.
+    - For local development, no other variables are needed as the application defaults to using SQLite.
 
 ### Running the Application
 
-1.  **Run the Backend Server:**
-    ```bash
-    uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-    ```
-    The API will be available at `http://localhost:8000`.
+You will need two separate terminals to run the backend and frontend servers concurrently.
 
-2.  **Run the Frontend Development Server:**
-    ```bash
-    npm run dev
-    ```
-    The frontend will be available at `http://localhost:5173`.
+1.  **Run the Backend Server (Terminal 1):**
+    - Activate the virtual environment: `source venv/bin/activate`
+    - Start the FastAPI server:
+      ```bash
+      uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+      ```
+    - The API will be available at `http://localhost:8000/docs`.
+
+2.  **Run the Frontend Development Server (Terminal 2):**
+    - Start the Vite development server:
+      ```bash
+      npm run dev
+      ```
+    - The frontend will be available at `http://localhost:5173`.
 
 ## Project Structure
 
@@ -85,26 +89,18 @@ This is a comprehensive management system for a university's scientific associat
 │   ├── models/           # SQLAlchemy models
 │   ├── routers/          # API routers
 │   ├── schemas/          # Pydantic schemas
-│   ├── services/         # Business logic services
+│   └── services/         # Business logic services
 │   └── main.py           # Main FastAPI app
 ├── public/               # Public assets
 ├── src/                  # React frontend source
 │   ├── components/       # Reusable components
-│   ├── contexts/         # React contexts (e.g., Auth)
+│   ├── contexts/         # React contexts
 │   ├── hooks/            # Custom React hooks
 │   ├── pages/            # Page components
-│   ├── schemas/          # TypeScript types/interfaces
-│   ├── services/         # API service layer
-│   └── App.tsx           # Main App component with routing
-├── .env.example          # Example environment variables
+│   └── ...
+├── .env.example
+├── .nvmrc                # Specifies Node.js version
 ├── package.json
+├── requirements.txt      # Python dependencies
 └── ...
 ```
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a pull request or open an issue.
-
-## License
-
-This project is licensed under the MIT License.
