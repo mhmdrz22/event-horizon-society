@@ -15,8 +15,6 @@ import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
 import { z } from 'zod';
-import PasswordStrengthMeter from '@/components/auth/PasswordStrengthMeter';
-import { usePasswordSecurity } from '@/hooks/use-password-security';
 
 // Email validation schema
 const emailSchema = z.string().email('ایمیل وارد شده معتبر نیست');
@@ -28,10 +26,7 @@ const LoginPage: React.FC = () => {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isPasswordCompromised, setIsPasswordCompromised] = useState(false);
-  const [occurrences, setOccurrences] = useState(0);
   const { signIn, user } = useAuth();
-  const { checkLeakedPassword } = usePasswordSecurity();
 
   // Redirect if already logged in
   if (user) {
@@ -64,15 +59,8 @@ const LoginPage: React.FC = () => {
     return isValid;
   };
 
-  const handlePasswordChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newPassword = e.target.value;
-    setPassword(newPassword);
-    
-    if (newPassword.length >= 8) {
-      const compromised = await checkLeakedPassword(newPassword);
-      setIsPasswordCompromised(compromised);
-    }
-    
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
     if (passwordError) validateForm();
   };
 
@@ -133,17 +121,10 @@ const LoginPage: React.FC = () => {
                   id="password" 
                   type="password"
                   value={password}
-                  onChange={handlePasswordChange}
+                  onChange={(e) => setPassword(e.target.value)}
                   className={passwordError ? "border-red-500" : ""}
                   required 
                 />
-                {password && password.length >= 6 && (
-                  <PasswordStrengthMeter 
-                    password={password} 
-                    isCompromised={isPasswordCompromised}
-                    occurrences={occurrences}
-                  />
-                )}
                 {passwordError && (
                   <p className="text-sm text-red-500">{passwordError}</p>
                 )}
