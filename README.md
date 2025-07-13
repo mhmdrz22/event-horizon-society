@@ -23,7 +23,7 @@ This is a comprehensive management system for a university's scientific associat
 
 ### Prerequisites
 
-- **Node.js**: Version `18.18.0`, `20.9.0`, or `22.0.0` and higher. We recommend using [nvm](https://github.com/nvm-sh/nvm) to manage Node.js versions.
+- **Node.js**: Version `18.18.0`, `20.0.0`, or `22.0.0`. We recommend using [nvm](https://github.com/nvm-sh/nvm) to manage Node.js versions.
 - **Python**: Version 3.10+
 - A virtual environment tool for Python (e.g., `venv`).
 
@@ -49,7 +49,7 @@ This is a comprehensive management system for a university's scientific associat
 
 3.  **Setup Frontend:**
     - Make sure you are in the project root.
-    - If you are using `nvm`, run `nvm use` to switch to the correct Node.js version specified in `.nvmrc`.
+    - If you are using `nvm`, run `nvm use` to switch to the correct Node.js version specified in `package.json`.
     - Install frontend dependencies:
       ```bash
       npm install
@@ -99,7 +99,6 @@ You will need two separate terminals to run the backend and frontend servers con
 │   ├── pages/            # Page components
 │   └── ...
 ├── .env.example
-├── .nvmrc                # Specifies Node.js version
 ├── package.json
 ├── requirements.txt      # Python dependencies
 └── ...
