@@ -20,7 +20,7 @@ interface AuthContextType {
   user: UserProfile | null;
   loading: boolean;
   signUp: (data: any) => Promise<void>;
-  signIn: (data: any) => Promise<void>;
+  signIn: (data: { [key: string]: string; }) => Promise<void>;
   signOut: () => void;
   updateProfile: (data: Partial<UserProfile>) => Promise<void>;
 }
@@ -83,9 +83,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const signIn = async (signInData: any) => {
+  const signIn = async (signInData: { [key: string]: string; }) => {
     try {
-      const response = await api.post('/auth/login', new URLSearchParams(signInData));
+      const response = await api.post('/auth/login/access-token', new URLSearchParams(signInData));
       const { access_token } = response.data;
 
       if (access_token) {

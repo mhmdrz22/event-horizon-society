@@ -74,7 +74,7 @@ const LoginPage: React.FC = () => {
     setIsSubmitting(true);
     
     try {
-      await signIn(email, password);
+      await signIn({ username: email, password });
     } finally {
       setIsSubmitting(false);
     }
