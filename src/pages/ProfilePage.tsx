@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -12,35 +12,39 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
+import { Loader2 } from 'lucide-react';
 
 const ProfilePage: React.FC = () => {
-  const { profile, loading, updateProfile, signOut } = useAuth();
+  const { user, loading, updateProfile, signOut } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
+    full_name: '',
     email: '',
+    student_id: '',
+    phone_number: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Update form data when profile loads or changes
-  React.useEffect(() => {
-    if (profile) {
+  useEffect(() => {
+    if (user) {
       setFormData({
-        name: profile.name || '',
-        email: profile.email || '',
+        full_name: user.full_name || '',
+        email: user.email || '',
+        student_id: user.student_id || '',
+        phone_number: user.phone_number || '',
       });
     }
-  }, [profile]);
+  }, [user]);
 
   if (loading) {
     return (
       <div className="container py-8 px-4 flex justify-center">
-        <p>Loading profile...</p>
+        <Loader2 className="h-8 w-8 animate-spin text-navy" />
       </div>
     );
   }
 
-  if (!profile) {
+  if (!user) {
     return (
       <div className="container py-8 px-4 flex justify-center">
         <p>Please log in to view your profile.</p>
@@ -59,8 +63,9 @@ const ProfilePage: React.FC = () => {
     
     try {
       await updateProfile({
-        name: formData.name,
-        // Email is read-only for now as it requires email verification
+        full_name: formData.full_name,
+        student_id: formData.student_id,
+        phone_number: formData.phone_number,
       });
       setIsEditing(false);
     } finally {
@@ -73,56 +78,61 @@ const ProfilePage: React.FC = () => {
       <div className="max-w-2xl mx-auto">
         <Card>
           <CardHeader>
-            <CardTitle>My Profile</CardTitle>
+            <CardTitle>پروفایل من</CardTitle>
             <CardDescription>
-              View and manage your account information
+              اطلاعات حساب خود را مشاهده و مدیریت کنید
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="role">Role</Label>
-                <Input
-                  id="role"
-                  value={profile.role}
-                  disabled
-                />
+                <Label htmlFor="role">نقش</Label>
+                <Input id="role" value={user.role} disabled />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="full_name">نام کامل</Label>
                 <Input
-                  id="name"
-                  name="name"
-                  value={formData.name}
+                  id="full_name"
+                  name="full_name"
+                  value={formData.full_name}
                   onChange={handleChange}
                   disabled={!isEditing}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  disabled
-                />
-                {isEditing && (
-                  <p className="text-sm text-muted-foreground">
-                    Email cannot be changed directly. Contact an administrator for assistance.
-                  </p>
-                )}
+                <Label htmlFor="email">ایمیل</Label>
+                <Input id="email" value={formData.email} disabled />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="created">Member Since</Label>
+                <Label htmlFor="student_id">شماره دانشجویی</Label>
+                <Input
+                  id="student_id"
+                  name="student_id"
+                  value={formData.student_id}
+                  onChange={handleChange}
+                  disabled={!isEditing}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone_number">شماره تلفن</Label>
+                <Input
+                  id="phone_number"
+                  name="phone_number"
+                  value={formData.phone_number}
+                  onChange={handleChange}
+                  disabled={!isEditing}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="created">عضویت از</Label>
                 <Input
                   id="created"
-                  value={new Date(profile.created_at).toLocaleDateString()}
+                  value={new Date(user.created_at).toLocaleDateString('fa-IR')}
                   disabled
                 />
               </div>
             </CardContent>
-            <CardFooter className="flex flex-col sm:flex-row gap-4">
+            <CardFooter className="flex flex-col sm:flex-row-reverse gap-4">
               {isEditing ? (
                 <>
                   <Button 
@@ -130,7 +140,7 @@ const ProfilePage: React.FC = () => {
                     disabled={isSubmitting}
                     className="w-full sm:w-auto"
                   >
-                    {isSubmitting ? 'Saving...' : 'Save Changes'}
+                    {isSubmitting ? 'در حال ذخیره...' : 'ذخیره تغییرات'}
                   </Button>
                   <Button 
                     type="button" 
@@ -139,7 +149,7 @@ const ProfilePage: React.FC = () => {
                     className="w-full sm:w-auto"
                     disabled={isSubmitting}
                   >
-                    Cancel
+                    لغو
                   </Button>
                 </>
               ) : (
@@ -149,15 +159,15 @@ const ProfilePage: React.FC = () => {
                     onClick={() => setIsEditing(true)}
                     className="w-full sm:w-auto"
                   >
-                    Edit Profile
+                    ویرایش پروفایل
                   </Button>
                   <Button 
                     type="button" 
-                    variant="outline"
+                    variant="destructive"
                     onClick={signOut}
                     className="w-full sm:w-auto"
                   >
-                    Sign Out
+                    خروج
                   </Button>
                 </>
               )}

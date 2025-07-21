@@ -19,20 +19,34 @@ export interface UserProfile {
 interface AuthContextType {
   user: UserProfile | null;
   loading: boolean;
-  signUp: (data: any) => Promise<void>;
-  signIn: (data: { [key: string]: string; }) => Promise<void>;
+  signUp: (data: Record<string, unknown>) => Promise<void>;
+  signIn: (data: { [key: string]: string }) => Promise<void>;
   signOut: () => void;
   updateProfile: (data: Partial<UserProfile>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Define a type for the decoded token
+interface DecodedToken extends UserProfile {
+  user_id: string;
+  sub: string;
+  user_role: UserRole;
+}
+
 // Helper function to get user from token
 const getUserFromToken = (token: string): UserProfile | null => {
   try {
-    // Assuming the token payload has the user profile structure
-    const decoded: UserProfile = jwtDecode(token);
-    return decoded;
+    const decoded: DecodedToken = jwtDecode(token);
+    return {
+      id: decoded.user_id,
+      email: decoded.sub,
+      full_name: decoded.full_name,
+      role: decoded.user_role,
+      created_at: decoded.created_at,
+      student_id: decoded.student_id,
+      phone_number: decoded.phone_number,
+    };
   } catch (error) {
     console.error("Invalid token:", error);
     return null;
@@ -48,14 +62,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const initializeAuth = async () => {
       const token = localStorage.getItem('authToken');
       if (token) {
-        const userFromToken = getUserFromToken(token);
-        if (userFromToken) {
-          setUser(userFromToken);
-          // Optionally, you could verify the token with the backend here
-          // For example, by fetching the user profile
-          // await fetchUserProfile();
-        } else {
-          // If token is invalid, remove it
+        try {
+          // Verify token with backend and get fresh user data
+          const response = await api.get('/users/me');
+          setUser(response.data);
+        } catch (error) {
+          console.error("Token verification failed:", error);
           localStorage.removeItem('authToken');
         }
       }
@@ -65,7 +77,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     initializeAuth();
   }, []);
 
-  const signUp = async (signUpData: any) => {
+  const signUp = async (signUpData: Record<string, unknown>) => {
     try {
       await api.post('/auth/signup', signUpData);
       toast({
@@ -73,66 +85,88 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         description: 'حساب شما ایجاد شد. اکنون می توانید وارد شوید.',
       });
       navigate('/login');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Unexpected error during sign up:', error);
+      const errorMessage =
+        error instanceof Error ? error.message : 'خطای غیرمنتظره رخ داده است.';
       toast({
         title: 'خطا در ثبت نام',
-        description: error.response?.data?.detail || 'خطای غیرمنتظره رخ داده است.',
+        description: errorMessage,
         variant: 'destructive',
       });
     }
   };
 
-  const signIn = async (signInData: { [key: string]: string; }) => {
+  const signIn = async (signInData: { [key: string]: string }) => {
     try {
-      const response = await api.post('/auth/login/access-token', new URLSearchParams(signInData));
-      const { access_token } = response.data;
+      const response = await api.post(
+        "/auth/login/access-token",
+        new URLSearchParams(signInData)
+      );
+      const { access_token, user: loggedInUser } = response.data;
 
       if (access_token) {
-        localStorage.setItem('authToken', access_token);
-        const userFromToken = getUserFromToken(access_token);
-        setUser(userFromToken);
+        localStorage.setItem("authToken", access_token);
+        setUser(loggedInUser); // Use the user object from the response
 
         toast({
-          title: 'ورود موفقیت آمیز',
-          description: 'خوش آمدید!',
+          title: "ورود موفقیت آمیز",
+          description: "خوش آمدید!",
         });
-        navigate('/');
+        navigate("/");
       }
-    } catch (error: any) {
-      console.error('Unexpected error during sign in:', error);
+    } catch (error) {
+      console.error("Unexpected error during sign in:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : 'ایمیل یا رمز عبور نامعتبر است.';
       toast({
-        title: 'خطا در ورود',
-        description: error.response?.data?.detail || 'ایمیل یا رمز عبور نامعتبر است.',
-        variant: 'destructive',
+        title: "خطا در ورود",
+        description: errorMessage,
+        variant: "destructive",
       });
     }
   };
 
   const signOut = () => {
-    localStorage.removeItem('authToken');
+    localStorage.removeItem("authToken");
     setUser(null);
     toast({
-      title: 'خروج موفقیت آمیز',
+      title: "خروج موفقیت آمیز",
     });
-    navigate('/login');
+    navigate("/login");
   };
 
   const updateProfile = async (updateData: Partial<UserProfile>) => {
     if (!user) return;
+
+    // Filter out unchanged values
+    const changedData = Object.entries(updateData).reduce((acc, [key, value]) => {
+      if (value !== user[key as keyof UserProfile]) {
+        acc[key as keyof UserProfile] = value;
+      }
+      return acc;
+    }, {} as Partial<UserProfile>);
+
+    if (Object.keys(changedData).length === 0) {
+      toast({ title: 'No changes to update.' });
+      return;
+    }
+
     try {
-      const response = await api.put(`/users/me`, updateData);
+      const response = await api.put(`/users/me`, changedData);
       const updatedUser = response.data;
-      setUser(updatedUser); // Update user state with the response from the server
+      setUser(updatedUser);
       toast({
-        title: 'پروفایل به‌روزرسانی شد',
+        title: "پروفایل به‌روزرسانی شد",
       });
-    } catch (error: any) {
-      console.error('Unexpected error updating profile:', error);
+    } catch (error) {
+      console.error("Unexpected error updating profile:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : 'خطای غیرمنتظره رخ داده است.';
       toast({
-        title: 'خطا در به‌روزرسانی',
-        description: error.response?.data?.detail || 'خطای غیرمنتظره رخ داده است.',
-        variant: 'destructive',
+        title: "خطا در به‌روزرسانی",
+        description: errorMessage,
+        variant: "destructive",
       });
     }
   };
