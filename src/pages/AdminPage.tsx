@@ -37,7 +37,7 @@ const AdminPage: React.FC = () => {
     }
 
     fetchData(activeTab);
-  }, [profile, activeTab, navigate]);
+  }, [profile, activeTab, navigate, fetchData]);
 
   return (
     <div className="container py-8 px-4">
