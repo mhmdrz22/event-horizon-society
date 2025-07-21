@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
 import { z } from 'zod';
@@ -27,11 +27,14 @@ const LoginPage: React.FC = () => {
   const [passwordError, setPasswordError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { signIn, user } = useAuth();
+  const navigate = useNavigate();
 
   // Redirect if already logged in
-  if (user) {
-    return <Navigate to="/" replace />;
-  }
+  React.useEffect(() => {
+    if (user) {
+      navigate('/', { replace: true });
+    }
+  }, [user, navigate]);
 
   const validateForm = () => {
     let isValid = true;

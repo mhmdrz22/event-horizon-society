@@ -46,3 +46,27 @@ def update_user_role(
         )
     user = user_service.update(db, db_obj=user, obj_in=user_in)
     return user
+
+
+@router.get("/me", response_model=schemas.User)
+def read_user_me(
+    current_user: models.user.User = Depends(get_current_user),
+) -> Any:
+    """
+    Get current user.
+    """
+    return current_user
+
+
+@router.put("/me", response_model=schemas.User)
+def update_user_me(
+    *,
+    db: Session = Depends(get_db),
+    user_in: schemas.UserUpdate,
+    current_user: models.user.User = Depends(get_current_user),
+) -> Any:
+    """
+    Update own user.
+    """
+    user = user_service.update(db, db_obj=current_user, obj_in=user_in)
+    return user
