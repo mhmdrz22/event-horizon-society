@@ -17,14 +17,12 @@ def signup(
     """
     Create new user.
     """
-    user = user_service.get_by_email(db, email=user_in.email)
-    if user:
+    if user_service.get_by_email(db, email=user_in.email):
         raise HTTPException(
             status_code=400,
             detail="The user with this email already exists in the system.",
         )
-    user = user_service.create(db, obj_in=user_in)
-    return user
+    return user_service.create(db, obj_in=user_in)
 
 
 @router.post("/login/access-token", response_model=schemas.Token)
@@ -40,10 +38,10 @@ def login_access_token(
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect email or password")
 
-    access_token_expires = security.create_access_token(
-        data={"sub": user.email}
+    access_token = security.create_access_token(
+        subject=user.email, user_id=user.id, user_role=user.role.value
     )
     return {
-        "access_token": access_token_expires,
+        "access_token": access_token,
         "token_type": "bearer",
     }

@@ -21,6 +21,9 @@ reusable_oauth2_optional = OAuth2PasswordBearer(
 def get_current_user(
     db: Session = Depends(get_db), token: str = Depends(reusable_oauth2)
 ) -> User:
+    """
+    Dependency to get the current user from the database.
+    """
     try:
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
