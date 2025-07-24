@@ -101,7 +101,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const response = await api.post(
         "/auth/login/access-token",
-        new URLSearchParams(signInData)
+        new URLSearchParams(signInData),
+        {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        }
       );
       const { access_token, user: loggedInUser } = response.data;
 
