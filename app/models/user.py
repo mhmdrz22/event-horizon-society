@@ -19,6 +19,7 @@ class User(Base):
     phone_number = Column(String(20), unique=True, index=True, nullable=True) # Assuming phone_number can be optional
 
     role = Column(DBEnum(UserRole), default=UserRole.STUDENT, nullable=False)
+    is_active = Column(Boolean, default=True)
     is_superuser = Column(Boolean, default=False)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)

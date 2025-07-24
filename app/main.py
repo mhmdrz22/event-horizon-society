@@ -1,16 +1,29 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from app.core.config import settings
-from app.db.session import engine, SessionLocal
+from app.db.session import engine
 from app.db.base import Base
+
 
 def create_db_and_tables():
     Base.metadata.create_all(bind=engine)
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    create_db_and_tables()
+    yield
+    # Shutdown
+
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.PROJECT_VERSION,
-    openapi_url=f"{settings.API_V1_STR}/openapi.json" # Ensures OpenAPI spec is under API prefix
+    openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    lifespan=lifespan,
 )
 
 # Set all CORS enabled origins
@@ -22,10 +35,6 @@ if settings.BACKEND_CORS_ORIGINS_LIST:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-
-@app.on_event("startup")
-def on_startup():
-    create_db_and_tables()
 
 from app.routers import (
     auth as auth_router,
