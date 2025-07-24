@@ -33,4 +33,17 @@ class UserService(ServiceBase[User, UserCreate, UserUpdate]):
             return None
         return user
 
+    def get_all(self, db: Session):
+        return db.query(self.model).all()
+
+    def update_status(self, db: Session, *, user_id: int, is_active: bool) -> Optional[User]:
+        user = self.get(db, id=user_id)
+        if user:
+            # Assuming there is an 'is_active' field in the User model
+            setattr(user, 'is_active', is_active)
+            db.commit()
+            db.refresh(user)
+        return user
+
+
 user_service = UserService(User)

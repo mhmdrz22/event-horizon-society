@@ -1,107 +1,94 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { api } from "@/services/api";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Article } from "@/schemas/article";
+import { toast } from "sonner";
 
-import React from 'react';
-import { DataTable } from '@/components/ui/data-table';
-import { Button } from '@/components/ui/button';
-import { Eye, Check, X } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+const SubmissionTable = () => {
+  const queryClient = useQueryClient();
+  const { data: articles, isLoading } = useQuery<Article[]>({
+    queryKey: ["admin", "articles"],
+    queryFn: () => api.get("/admin/articles").then((res) => res.data),
+  });
 
-interface Submission {
-  id: string;
-  title: string;
-  content: string;
-  status: 'pending' | 'approved' | 'rejected';
-  submitted_at: string;
-  user_id: string;
-  user?: {
-    name: string;
-    email: string;
-  };
-}
+  const mutation = useMutation({
+    mutationFn: ({
+      articleId,
+      status,
+    }: {
+      articleId: number;
+      status: string;
+    }) => {
+      return api.put(`/admin/articles/${articleId}/status`, { status });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "articles"] });
+      toast.success("وضعیت مقاله با موفقیت تغییر کرد");
+    },
+    onError: () => {
+      toast.error("خطا در تغییر وضعیت مقاله");
+    },
+  });
 
-interface SubmissionTableProps {
-  submissions: Submission[];
-  isLoading: boolean;
-  formatDate: (dateString: string) => string;
-  handleUpdateSubmissionStatus: (id: string, status: 'approved' | 'rejected') => Promise<void>;
-}
-
-const SubmissionTable: React.FC<SubmissionTableProps> = ({ 
-  submissions, 
-  isLoading, 
-  formatDate, 
-  handleUpdateSubmissionStatus 
-}) => {
-  const submissionColumns = [
-    {
-      header: 'عنوان',
-      cell: ({ row }: { row: any }) => <div className="font-medium">{row.title}</div>
-    },
-    {
-      header: 'نویسنده',
-      cell: ({ row }: { row: any }) => <div>{row.user?.name || row.user?.email || 'ناشناس'}</div>
-    },
-    {
-      header: 'تاریخ ارسال',
-      cell: ({ row }: { row: any }) => <div>{formatDate(row.submitted_at)}</div>
-    },
-    {
-      header: 'وضعیت',
-      cell: ({ row }: { row: any }) => (
-        <Badge 
-          variant={
-            row.status === 'approved' ? 'default' :
-            row.status === 'rejected' ? 'destructive' : 'secondary'
-          }
-        >
-          {row.status === 'approved' ? 'تایید شده' :
-           row.status === 'rejected' ? 'رد شده' : 'در انتظار بررسی'}
-        </Badge>
-      )
-    },
-    {
-      header: 'عملیات',
-      cell: ({ row }: { row: any }) => (
-        <div className="flex gap-2">
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={() => {
-              // View functionality would go here
-              alert('مشاهده مقاله: ' + row.id);
-            }}
-          >
-            <Eye className="h-4 w-4" />
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="icon"
-            className="text-green-600"
-            onClick={() => handleUpdateSubmissionStatus(row.id, 'approved')}
-            disabled={row.status === 'approved'}
-          >
-            <Check className="h-4 w-4" />
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="icon"
-            className="text-red-600"
-            onClick={() => handleUpdateSubmissionStatus(row.id, 'rejected')}
-            disabled={row.status === 'rejected'}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-      )
-    }
-  ];
+  if (isLoading) return <div>در حال بارگذاری...</div>;
 
   return (
-    <DataTable 
-      columns={submissionColumns} 
-      data={submissions} 
-      searchKey="title"
-      searchPlaceholder="جستجو بر اساس عنوان..."
-    />
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>عنوان مقاله</TableHead>
+          <TableHead>نویسنده</TableHead>
+          <TableHead>وضعیت</TableHead>
+          <TableHead>عملیات</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {articles?.map((article) => (
+          <TableRow key={article.id}>
+            <TableCell>{article.title}</TableCell>
+            <TableCell>{article.author.full_name}</TableCell>
+            <TableCell>
+              <Badge>{article.status}</Badge>
+            </TableCell>
+            <TableCell>
+              <Button
+                size="sm"
+                onClick={() =>
+                  mutation.mutate({
+                    articleId: article.id,
+                    status: "approved",
+                  })
+                }
+              >
+                تایید
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                className="mr-2"
+                onClick={() =>
+                  mutation.mutate({
+                    articleId: article.id,
+                    status: "rejected",
+                  })
+                }
+              >
+                رد
+              </Button>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 };
 

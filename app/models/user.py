@@ -1,5 +1,5 @@
 import enum
-from sqlalchemy import Column, String, DateTime, Enum as DBEnum
+from sqlalchemy import Column, String, DateTime, Enum as DBEnum, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.db.base_class import Base
@@ -19,6 +19,7 @@ class User(Base):
     phone_number = Column(String(20), unique=True, index=True, nullable=True) # Assuming phone_number can be optional
 
     role = Column(DBEnum(UserRole), default=UserRole.STUDENT, nullable=False)
+    is_superuser = Column(Boolean, default=False)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now(), nullable=False)

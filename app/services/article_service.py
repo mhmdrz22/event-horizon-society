@@ -12,4 +12,15 @@ class ArticleService(ServiceBase[Article, ArticleCreate, ArticleUpdate]):
         db.refresh(db_obj)
         return db_obj
 
+    def get_all(self, db: Session):
+        return db.query(self.model).all()
+
+    def update_status(self, db: Session, *, article_id: int, status: str) -> Article:
+        article = self.get(db, id=article_id)
+        if article:
+            article.status = status
+            db.commit()
+            db.refresh(article)
+        return article
+
 article_service = ArticleService(Article)

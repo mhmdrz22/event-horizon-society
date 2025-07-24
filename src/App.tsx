@@ -18,7 +18,7 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 import ArticleSubmissionPage from "./pages/ArticleSubmissionPage";
 import NewsDetailPage from "./pages/NewsDetailPage";
 import EventDetailPage from "./pages/EventDetailPage";
-import AdminPage from "./pages/AdminPage";
+import AdminDashboardPage from "./pages/AdminDashboardPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import RTLProvider from "./components/layout/RTLProvider";
 
@@ -48,7 +48,7 @@ const AppWithProviders = () => (
             
             {/* Admin routes */}
             <Route element={<ProtectedRoute requiredRoles={['admin']} />}>
-              <Route path="/admin" element={<AdminPage />} />
+              <Route path="/admin" element={<AdminDashboardPage />} />
             </Route>
             
             <Route path="*" element={<NotFound />} />
