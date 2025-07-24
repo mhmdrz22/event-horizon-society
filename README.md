@@ -103,3 +103,33 @@ You will need two separate terminals to run the backend and frontend servers con
 ├── requirements.txt      # Python dependencies
 └── ...
 ```
+
+## Admin Panel
+
+The admin panel provides administrators with the tools to manage users, articles, and other aspects of the system. Access is restricted to users with the `superuser` role.
+
+### Accessing the Admin Panel
+
+To access the admin panel, you need to have a user with `is_superuser=True`.
+
+1.  **Create a Superuser**: You can create a superuser through the API or by directly interacting with the database.
+2.  **Authenticate**: Obtain a JWT token by sending a POST request to the `/api/v1/auth/token` endpoint with the superuser's credentials.
+3.  **Send Authenticated Requests**: Include the obtained JWT token in the `Authorization` header for all requests to the admin endpoints (e.g., `Authorization: Bearer <your_token>`).
+
+### Admin Endpoints
+
+Here are some of the main endpoints available in the admin panel:
+
+-   **`GET /api/v1/admin/users`**: Retrieves a list of all users in the system.
+-   **`GET /api/v1/admin/articles`**: Retrieves a list of all articles.
+-   **`PUT /api/v1/admin/users/{user_id}/status`**: Updates the status of a user (e.g., activate or deactivate).
+-   **`PUT /api/v1/admin/articles/{article_id}/status`**: Updates the status of an article.
+
+### Example Request
+
+Here is an example of how to get the list of all users using `curl`:
+
+```bash
+curl -X GET "http://localhost:8000/api/v1/admin/users" \
+     -H "Authorization: Bearer <your_jwt_token>"
+```
