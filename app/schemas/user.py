@@ -9,6 +9,7 @@ class UserBase(BaseModel):
     full_name: constr(min_length=1, max_length=255)
     student_id: Optional[constr(max_length=50)] = None
     phone_number: Optional[constr(max_length=20)] = None # Add validation regex later if needed
+    is_superuser: bool = False
 
 class UserCreate(UserBase):
     password: constr(min_length=8) # Basic length validation for password
@@ -21,6 +22,7 @@ class UserUpdate(BaseModel): # UserBase makes all fields required by default, fo
     phone_number: Optional[constr(max_length=20)] = None
     password: Optional[constr(min_length=8)] = None
     role: Optional[ModelUserRole] = None # Allow role update for admins
+    is_superuser: Optional[bool] = None
 
 # Properties to return to client
 class User(UserBase):

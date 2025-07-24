@@ -1,15 +1,19 @@
-import { UserProfile } from "@/contexts/AuthContext";
+import { z } from "zod";
+import { UserSchema } from "./user";
 
-export type ArticleStatus = "pending" | "approved" | "rejected";
+export const ArticleStatusSchema = z.enum(["pending", "approved", "rejected"]);
+export type ArticleStatus = z.infer<typeof ArticleStatusSchema>;
 
-export interface Article {
-  id: number;
-  title: string;
-  content: string;
-  author_id: number;
-  status: ArticleStatus;
-  review_comments?: string;
-  submitted_at: string;
-  reviewed_at?: string;
-  author?: UserProfile;
-}
+export const ArticleSchema = z.object({
+  id: z.number(),
+  title: z.string(),
+  content: z.string(),
+  author_id: z.number(),
+  status: ArticleStatusSchema,
+  review_comments: z.string().optional(),
+  submitted_at: z.string(),
+  reviewed_at: z.string().optional(),
+  author: UserSchema.optional(),
+});
+
+export type Article = z.infer<typeof ArticleSchema>;
