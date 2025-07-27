@@ -6,3 +6,4 @@ from .event import EventBase, EventCreate, EventUpdate, EventResponse, EventRegi
 from .article import ArticleBase, ArticleCreate, ArticleUpdate, Article
 from .comment import CommentBase, CommentCreate, Comment
 from .membership_request import MembershipRequestBase, MembershipRequestCreate, MembershipRequestUpdate, MembershipRequest
+from app.models.article import ArticleStatus

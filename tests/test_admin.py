@@ -15,13 +15,17 @@ def db_session():
     """
     Creates a new database session for each test function.
     """
+    print("Creating database tables...")
     Base.metadata.create_all(bind=engine)
+    print("Database tables created.")
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
+        print("Dropping database tables...")
         Base.metadata.drop_all(bind=engine)
+        print("Database tables dropped.")
 
 @pytest.fixture(scope="module")
 def test_client():
