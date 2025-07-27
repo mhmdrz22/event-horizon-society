@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from app import models, schemas
 from app.core import security
-from app.db.session import get_db
+from app.database import get_db
 from app.services.user_service import user_service
 
 router = APIRouter()

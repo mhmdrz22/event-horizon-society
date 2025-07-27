@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app import models, schemas
 from app.dependencies import get_current_user
-from app.db.session import get_db
+from app.database import get_db
 from app.services.event_registration_service import event_registration_service
 from app.services.event_service import event_service
 
