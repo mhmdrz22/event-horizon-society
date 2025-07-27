@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from app import schemas, services
-from app.dependencies import get_db, get_current_active_superuser
+from app.database import get_db
+from app.dependencies import get_current_active_superuser
 
 router = APIRouter(
     prefix="/admin",
