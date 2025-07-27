@@ -2,7 +2,7 @@ import enum
 from sqlalchemy import Column, DateTime, ForeignKey, Enum as DBEnum, Integer
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from app.db.base_class import Base
+from app.db.base_class import CustomBase as Base
 
 class MembershipRequestStatus(enum.Enum):
     PENDING = "pending"

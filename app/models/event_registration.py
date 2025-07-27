@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from app.db.base_class import Base
+from app.db.base_class import CustomBase as Base
 
 class EventRegistration(Base):
     __tablename__ = "event_registrations"
