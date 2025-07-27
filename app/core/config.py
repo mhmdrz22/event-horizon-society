@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     # The default is to use SQLite for simple, local development.
     # You can override this with a full PostgreSQL DSN in your .env file
     # For example: DATABASE_URL="postgresql+psycopg2://user:password@host:port/dbname"
-    DATABASE_URL: str = "sqlite:///:memory:"
+    DATABASE_URL: str = "sqlite:///./test.db"
 
     # The following property is kept for compatibility but the direct DATABASE_URL is preferred.
     @property
