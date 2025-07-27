@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core import security
-from app.db.session import get_db
+from app.database import get_db
 from app.models.user import User
 from app.schemas.token import TokenPayload
 from app.services.user_service import user_service
