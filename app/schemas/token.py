@@ -12,3 +12,4 @@ class TokenPayload(BaseModel):
     user_id: Optional[int] = None
     user_role: Optional[str] = None
     full_name: Optional[str] = None
+    is_superuser: bool = False

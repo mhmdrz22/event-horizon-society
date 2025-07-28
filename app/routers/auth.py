@@ -8,7 +8,7 @@ from app.services.user_service import user_service
 
 router = APIRouter()
 
-@router.post("/signup", response_model=schemas.User)
+@router.post("/signup")
 def signup(
     *,
     db: Session = Depends(get_db),
@@ -17,15 +17,35 @@ def signup(
     """
     Create new user.
     """
-    if user_service.get_by_email(db, email=user_in.email):
-        raise HTTPException(
-            status_code=400,
-            detail="The user with this email already exists in the system.",
-        )
-    return user_service.create(db, obj_in=user_in)
+    user = user_service.get_by_email(db, email=user_in.email)
+    if user:
+        if not user.is_superuser and user_in.is_superuser:
+            user.is_superuser = user_in.is_superuser
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail="The user with this email already exists in the system.",
+            )
+    else:
+        user = user_service.create(db, obj_in=user_in)
+
+    access_token = security.create_access_token(
+        subject=user.email,
+        user_id=user.id,
+        user_role=user.role.value,
+        full_name=user.full_name,
+        is_superuser=user.is_superuser,
+    )
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+    }
 
 
-@router.post("/token", response_model=schemas.Token)
+@router.post("/token")
 def login_for_access_token(
     db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()
 ):
@@ -43,9 +63,9 @@ def login_for_access_token(
         user_id=user.id,
         user_role=user.role.value,
         full_name=user.full_name,
+        is_superuser=user.is_superuser,
     )
     return {
         "access_token": access_token,
         "token_type": "bearer",
-        "user": user,
     }
