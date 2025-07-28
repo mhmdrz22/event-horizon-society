@@ -36,7 +36,7 @@ class User(UserBase):
     model_config = {"from_attributes": True}
 
 # Properties stored in DB (internal representation, not for direct API output)
-class UserInDBBase(UserBase): # Renamed from UserInDB to UserInDBBase to avoid confusion with User schema above
+class UserInDB(UserBase): # Renamed from UserInDB to UserInDBBase to avoid confusion with User schema above
     id: int
     role: ModelUserRole
     created_at: datetime
@@ -44,11 +44,6 @@ class UserInDBBase(UserBase): # Renamed from UserInDB to UserInDBBase to avoid c
     password_hash: str
 
     model_config = {"from_attributes": True}
-
-# This UserInDB can be used if you need to pass the full UserInDBBase object around
-# For example, when fetching from DB and using it internally.
-class UserInDB(UserInDBBase):
-    pass
 
 class UserStatusUpdate(BaseModel):
     is_active: bool

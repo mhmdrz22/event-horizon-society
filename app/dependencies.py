@@ -12,10 +12,10 @@ from app.schemas.token import TokenPayload
 from app.services.user_service import user_service
 
 reusable_oauth2 = OAuth2PasswordBearer(
-    tokenUrl=f"{settings.API_V1_STR}/auth/login/access-token"
+    tokenUrl=f"{settings.API_V1_STR}/auth/token"
 )
 reusable_oauth2_optional = OAuth2PasswordBearer(
-    tokenUrl=f"{settings.API_V1_STR}/auth/login/access-token", auto_error=False
+    tokenUrl=f"{settings.API_V1_STR}/auth/token", auto_error=False
 )
 
 def get_current_user(
@@ -38,8 +38,6 @@ def get_current_user(
     user = user_service.get_by_email(db, email=token_data.sub)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    user.is_superuser = token_data.is_superuser
-    print(f"Current user: {user.email}, is_superuser: {user.is_superuser}")
     return user
 
 def get_current_user_optional(
