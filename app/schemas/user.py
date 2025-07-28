@@ -16,6 +16,10 @@ class UserCreate(UserBase):
     role: ModelUserRole = ModelUserRole.STUDENT # Default role for new users
     is_superuser: bool = False
 
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
 class UserUpdate(BaseModel): # UserBase makes all fields required by default, for update better to be explicit
     email: Optional[EmailStr] = None
     full_name: Optional[constr(min_length=1, max_length=255)] = None
