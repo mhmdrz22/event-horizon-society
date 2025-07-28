@@ -22,7 +22,7 @@ class Article(Base):
     reviewed_at = Column(DateTime(timezone=True), nullable=True) # Nullable, as it's set upon review
 
     author_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    author = relationship("User", back_populates="articles")
+    # author = relationship("User", back_populates="articles")
 
     # Relationships (e.g., if articles can have comments too, though not explicitly in this model's plan)
     # comments = relationship("Comment", back_populates="article_item", cascade="all, delete-orphan")

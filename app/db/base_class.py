@@ -1,5 +1,7 @@
 from sqlalchemy import Column, Integer
-from app.database import Base
+from sqlalchemy.orm import declarative_base
+
+Base = declarative_base()
 
 class CustomBase(Base):
     __abstract__ = True

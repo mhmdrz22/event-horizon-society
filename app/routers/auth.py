@@ -25,8 +25,8 @@ def signup(
     return user_service.create(db, obj_in=user_in)
 
 
-@router.post("/login/access-token", response_model=schemas.Token)
-def login_access_token(
+@router.post("/token", response_model=schemas.Token)
+def login_for_access_token(
     db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()
 ):
     """
