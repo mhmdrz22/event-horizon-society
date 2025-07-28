@@ -89,7 +89,7 @@ You will need two separate terminals to run the backend and frontend servers con
 │   ├── models/           # SQLAlchemy models
 │   ├── routers/          # API routers
 │   ├── schemas/          # Pydantic schemas
-│   └── services/         # Business logic services
+│   ├── services/         # Business logic services
 │   └── main.py           # Main FastAPI app
 ├── public/               # Public assets
 ├── src/                  # React frontend source
@@ -104,32 +104,25 @@ You will need two separate terminals to run the backend and frontend servers con
 └── ...
 ```
 
-## Admin Panel
+## API Endpoints
 
-The admin panel provides administrators with the tools to manage users, articles, and other aspects of the system. Access is restricted to users with the `superuser` role.
+The API is organized into several routers, each handling a specific resource.
 
-### Accessing the Admin Panel
+### User Management
 
-To access the admin panel, you need to have a user with `is_superuser=True`.
+-   **`GET /api/v1/users/`**: Retrieves a list of all users. (Superuser or Association Admin)
+-   **`PUT /api/v1/users/{user_id}/status`**: Updates the status of a user. (Superuser)
+-   **`PUT /api/v1/users/{user_id}/role`**: Updates the role of a user. (Association Admin)
+-   **`GET /api/v1/users/me`**: Retrieves the current user's information.
+-   **`PUT /api/v1/users/me`**: Updates the current user's information.
 
-1.  **Create a Superuser**: You can create a superuser through the API or by directly interacting with the database.
-2.  **Authenticate**: Obtain a JWT token by sending a POST request to the `/api/v1/auth/token` endpoint with the superuser's credentials.
-3.  **Send Authenticated Requests**: Include the obtained JWT token in the `Authorization` header for all requests to the admin endpoints (e.g., `Authorization: Bearer <your_token>`).
+### Authentication
 
-### Admin Endpoints
+-   **`POST /api/v1/auth/token`**: Authenticates a user and returns a JWT token.
 
-Here are some of the main endpoints available in the admin panel:
+### Articles
 
--   **`GET /api/v1/admin/users`**: Retrieves a list of all users in the system.
--   **`GET /api/v1/admin/articles`**: Retrieves a list of all articles.
--   **`PUT /api/v1/admin/users/{user_id}/status`**: Updates the status of a user (e.g., activate or deactivate).
--   **`PUT /api/v1/admin/articles/{article_id}/status`**: Updates the status of an article.
+-   **`GET /api/v1/articles/`**: Retrieves a list of all articles.
+-   **`PUT /api/v1/articles/{article_id}/status`**: Updates the status of an article. (Superuser)
 
-### Example Request
-
-Here is an example of how to get the list of all users using `curl`:
-
-```bash
-curl -X GET "http://localhost:8000/api/v1/admin/users" \
-     -H "Authorization: Bearer <your_jwt_token>"
-```
+And so on for the other resources.
