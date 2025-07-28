@@ -2,7 +2,7 @@ from app.core.config import settings
 from sqlalchemy import create_engine
 
 engine = create_engine(
-    settings.SQLALCHEMY_DATABASE_URI.replace("sqlite:///./", "sqlite:///"),
+    settings.SQLALCHEMY_DATABASE_URI,
     pool_pre_ping=True,
     connect_args={"check_same_thread": False} # Needed for SQLite
 )
