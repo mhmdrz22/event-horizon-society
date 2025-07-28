@@ -1,6 +1,5 @@
 from app.db.session import SessionLocal
-from app.models import user, news, article, event, event_registration, comment, membership_request, notification
-from app.models.user import User
+from app.models import User
 from app.core.security import get_password_hash
 
 def create_superuser():
