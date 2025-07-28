@@ -9,6 +9,11 @@ class UserService(ServiceBase[User, UserCreate, UserUpdate]):
     def get_by_email(self, db: Session, *, email: str) -> Optional[User]:
         return db.query(User).filter(User.email == email).first()
 
+    def get_by_id(self, db: Session, *, id: int) -> Optional[User]:
+        user = db.query(User).filter(User.id == id).first()
+        print(f"Queried user with id {id}: {user}")
+        return user
+
     def create(self, db: Session, *, obj_in: UserCreate) -> User:
         db_obj = User(
             email=obj_in.email,
@@ -17,6 +22,7 @@ class UserService(ServiceBase[User, UserCreate, UserUpdate]):
             student_id=obj_in.student_id,
             phone_number=obj_in.phone_number,
             role=obj_in.role,
+            is_superuser=obj_in.is_superuser,
         )
         db.add(db_obj)
         db.commit()

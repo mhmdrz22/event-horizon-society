@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core import security
-from app.database import get_db
+from app.db.session import get_db
 from app.models.user import User
 from app.schemas.token import TokenPayload
 from app.services.user_service import user_service
@@ -28,6 +28,7 @@ def get_current_user(
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
         )
+        print(f"JWT payload: {payload}")
         token_data = TokenPayload(**payload)
     except (jwt.JWTError, ValidationError):
         raise HTTPException(
@@ -37,6 +38,8 @@ def get_current_user(
     user = user_service.get_by_email(db, email=token_data.sub)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    user.is_superuser = token_data.is_superuser
+    print(f"Current user: {user.email}, is_superuser: {user.is_superuser}")
     return user
 
 def get_current_user_optional(
@@ -61,6 +64,7 @@ def get_current_active_superuser(
     """
     Dependency to get the current active superuser.
     """
+    print(f"get_current_active_superuser,  current_user: {current_user}, is_superuser: {current_user.is_superuser}")
     if not current_user.is_superuser:
         raise HTTPException(
             status_code=403, detail="The user doesn't have enough privileges"

@@ -18,8 +18,16 @@ class Comment(Base):
     event_id = Column(Integer, ForeignKey("events.id"), nullable=True)
     event_item = relationship("Event", back_populates="comments")
 
+    article_id = Column(Integer, ForeignKey("articles.id"), nullable=True)
+    article_item = relationship("Article", back_populates="comments")
+
     __table_args__ = (
-        CheckConstraint('(news_id IS NOT NULL AND event_id IS NULL) OR (news_id IS NULL AND event_id IS NOT NULL)', name='cc_comment_target_xor'),
+        CheckConstraint(
+            "(CASE WHEN news_id IS NOT NULL THEN 1 ELSE 0 END + "
+            "CASE WHEN event_id IS NOT NULL THEN 1 ELSE 0 END + "
+            "CASE WHEN article_id IS NOT NULL THEN 1 ELSE 0 END) = 1",
+            name='cc_comment_target_one_and_only_one'
+        ),
     )
 
     def __repr__(self):
@@ -28,4 +36,6 @@ class Comment(Base):
             target_info = f"news_id={self.news_id}"
         elif self.event_id:
             target_info = f"event_id={self.event_id}"
+        elif self.article_id:
+            target_info = f"article_id={self.article_id}"
         return f"<Comment(id={self.id}, user_id={self.user_id}, {target_info})>"

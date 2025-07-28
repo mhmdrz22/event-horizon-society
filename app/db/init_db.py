@@ -2,7 +2,7 @@ import logging
 from sqlalchemy import create_engine
 from app.core.config import settings
 from app.db.base import Base
-from app.models import user, news
+from app.models import user, news, article, comment, event, event_registration, membership_request
 from app.schemas.user import UserCreate
 from app.services.user_service import user_service
 from app.db.session import SessionLocal

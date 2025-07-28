@@ -17,6 +17,7 @@ def create_access_token(
     user_id: int,
     user_role: str,
     full_name: str,
+    is_superuser: bool,
     expires_delta: Optional[timedelta] = None,
 ) -> str:
     if expires_delta:
@@ -32,6 +33,7 @@ def create_access_token(
         "user_id": user_id,
         "user_role": user_role,
         "full_name": full_name,
+        "is_superuser": is_superuser,
     }
     encoded_jwt = jwt.encode(to_encode, JWT_SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt

@@ -26,6 +26,11 @@ class User(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now(), nullable=False)
 
     news_items = relationship("News", back_populates="author", cascade="all, delete-orphan")
+    events_organized = relationship("Event", back_populates="organizer", cascade="all, delete-orphan")
+    event_registrations = relationship("EventRegistration", back_populates="user", cascade="all, delete-orphan")
+    articles = relationship("Article", back_populates="author", cascade="all, delete-orphan")
+    comments = relationship("Comment", back_populates="user", cascade="all, delete-orphan")
+    membership_requests = relationship("MembershipRequest", back_populates="user", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<User(id={self.id}, email='{self.email}', role='{self.role.value}')>"
