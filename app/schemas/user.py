@@ -29,6 +29,7 @@ class UserUpdate(BaseModel): # UserBase makes all fields required by default, fo
 class User(UserBase):
     id: int
     role: ModelUserRole # Use the aliased model enum
+    is_active: bool
     created_at: datetime
     updated_at: datetime
 
@@ -48,3 +49,6 @@ class UserInDBBase(UserBase): # Renamed from UserInDB to UserInDBBase to avoid c
 # For example, when fetching from DB and using it internally.
 class UserInDB(UserInDBBase):
     pass
+
+class UserStatusUpdate(BaseModel):
+    is_active: bool
