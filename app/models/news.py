@@ -22,7 +22,6 @@ class News(Base):
     author = relationship("User", back_populates="news_items")
 
     # Relationships
-    comments = relationship("Comment", back_populates="news_item", cascade="all, delete-orphan")
 
 
     def __repr__(self):
