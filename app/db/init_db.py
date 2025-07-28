@@ -13,33 +13,19 @@ logger = logging.getLogger(__name__)
 
 def init_db():
     """
-    Initializes the database. If tables already exist, they will be dropped and recreated.
+    Initializes the database by creating a superuser if it doesn't exist.
     """
     try:
-        engine = create_engine(
-            settings.SQLALCHEMY_DATABASE_URI,
-            pool_pre_ping=True,
-            connect_args={"check_same_thread": False}  # Needed for SQLite
-        )
-
-        logger.info("Dropping all tables...")
-        Base.metadata.drop_all(bind=engine)
-        logger.info("Tables dropped.")
-
-        logger.info("Creating all tables...")
-        Base.metadata.create_all(bind=engine)
-        logger.info("Tables created successfully.")
-
         db = SessionLocal()
         # Check if a superuser already exists
-        if user_service.get_by_email(db, email="admin@example.com"):
+        if user_service.get_by_email(db, email=settings.FIRST_SUPERUSER_EMAIL):
             logger.info("Superuser with this email already exists.")
             return
 
         superuser_in = UserCreate(
-            full_name="Admin User",
-            email="admin@example.com",
-            password="adminpassword",
+            full_name=settings.FIRST_SUPERUSER_FULL_NAME,
+            email=settings.FIRST_SUPERUSER_EMAIL,
+            password=settings.FIRST_SUPERUSER_PASSWORD,
             role=UserRole.ASSOCIATION_ADMIN,
             is_superuser=True,
             is_active=True,
