@@ -2,14 +2,15 @@ from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app import models, schemas
+from app import models
+from app.schemas import user as user_schema
 from app.dependencies import get_current_user
 from app.db.session import get_db
 from app.services.user_service import user_service
 
 router = APIRouter()
 
-@router.get("/", response_model=List[schemas.User])
+@router.get("/", response_model=List[user_schema.User])
 def read_users(
     db: Session = Depends(get_db),
     skip: int = 0,
@@ -19,17 +20,17 @@ def read_users(
     """
     Retrieve users. Only admins can do this.
     """
-    if current_user.role != models.user.UserRole.ASSOCIATION_ADMIN:
+    if not current_user.is_superuser and current_user.role != models.user.UserRole.ASSOCIATION_ADMIN:
         raise HTTPException(status_code=403, detail="Not enough permissions")
     users = user_service.get_multi(db, skip=skip, limit=limit)
     return users
 
-@router.put("/{user_id}/role", response_model=schemas.User)
+@router.put("/{user_id}/role", response_model=user_schema.User)
 def update_user_role(
     *,
     db: Session = Depends(get_db),
     user_id: int,
-    user_in: schemas.UserUpdate,
+    user_in: user_schema.UserUpdate,
     current_user: models.user.User = Depends(get_current_user),
 ) -> Any:
     """
@@ -48,7 +49,7 @@ def update_user_role(
     return user
 
 
-@router.get("/me", response_model=schemas.User)
+@router.get("/me", response_model=user_schema.User)
 def read_user_me(
     current_user: models.user.User = Depends(get_current_user),
 ) -> Any:
@@ -58,15 +59,35 @@ def read_user_me(
     return current_user
 
 
-@router.put("/me", response_model=schemas.User)
+@router.put("/me", response_model=user_schema.User)
 def update_user_me(
     *,
     db: Session = Depends(get_db),
-    user_in: schemas.UserUpdate,
+    user_in: user_schema.UserUpdate,
     current_user: models.user.User = Depends(get_current_user),
 ) -> Any:
     """
     Update own user.
     """
     user = user_service.update(db, db_obj=current_user, obj_in=user_in)
+    return user
+
+
+@router.put("/{user_id}/status", response_model=user_schema.User)
+def update_user_status(
+    user_id: int,
+    status: user_schema.UserStatusUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.user.User = Depends(get_current_user),
+) -> user_schema.User:
+    """
+    Update a user's status.
+    """
+    if not current_user.is_superuser:
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    user = user_service.update_status(
+        db=db, user_id=user_id, is_active=status.is_active
+    )
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
     return user

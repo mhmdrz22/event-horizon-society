@@ -32,11 +32,9 @@ from app.routers import (
     event_registration as event_registration_router,
     user as user_router,
     notification as notification_router,
-    admin as admin_router,
 )
 
 app.include_router(auth_router.router, prefix=f"{settings.API_V1_STR}/auth", tags=["auth"])
-app.include_router(admin_router.router, prefix=f"{settings.API_V1_STR}/admin", tags=["admin"])
 app.include_router(news_router.router, prefix=f"{settings.API_V1_STR}/news", tags=["news"])
 app.include_router(article_router.router, prefix=f"{settings.API_V1_STR}/articles", tags=["articles"])
 app.include_router(event_router.router, prefix=f"{settings.API_V1_STR}/events", tags=["events"])
