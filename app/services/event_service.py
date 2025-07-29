@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from .base import ServiceBase
 from app.models.event import Event
 from app.schemas.event import EventCreate, EventUpdate
+from typing import List
 
 class EventService(ServiceBase[Event, EventCreate, EventUpdate]):
     def create(self, db: Session, *, obj_in: EventCreate, organizer_id: int) -> Event:
@@ -11,5 +12,16 @@ class EventService(ServiceBase[Event, EventCreate, EventUpdate]):
         db.commit()
         db.refresh(db_obj)
         return db_obj
+
+    def get_multi(
+        self, db: Session, *, skip: int = 0, limit: int = 100
+    ) -> List[Event]:
+        return (
+            db.query(self.model)
+            .order_by(self.model.event_datetime.desc())
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
 
 event_service = EventService(Event)

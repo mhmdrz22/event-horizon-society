@@ -5,6 +5,15 @@ from app.models.notification import Notification
 from app.schemas.notification import NotificationCreate, NotificationUpdate
 
 class NotificationService(ServiceBase[Notification, NotificationCreate, NotificationUpdate]):
+    def create_for_user(self, db: Session, *, user_id: int, message: str) -> Notification:
+        obj_in = NotificationCreate(message=message)
+        obj_in_data = obj_in.model_dump()
+        db_obj = self.model(**obj_in_data, user_id=user_id)
+        db.add(db_obj)
+        db.commit()
+        db.refresh(db_obj)
+        return db_obj
+
     def get_multi_by_user(
         self, db: Session, *, user_id: int, skip: int = 0, limit: int = 100
     ) -> List[Notification]:
@@ -25,5 +34,14 @@ class NotificationService(ServiceBase[Notification, NotificationCreate, Notifica
         )
         db.commit()
         return num_updated
+
+    def delete_read_notifications(self, db: Session, *, user_id: int) -> int:
+        num_deleted = (
+            db.query(self.model)
+            .filter(self.model.user_id == user_id, self.model.is_read == True)
+            .delete(synchronize_session=False)
+        )
+        db.commit()
+        return num_deleted
 
 notification_service = NotificationService(Notification)
