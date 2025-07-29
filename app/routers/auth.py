@@ -45,7 +45,7 @@ def signup(
     return {
         "access_token": access_token,
         "token_type": "bearer",
-       "user": schemas.User.model_validate(user),
+       "user": schemas.User.from_orm(user),
     }
 
 
@@ -73,7 +73,5 @@ def login_for_access_token(
     return {
         "access_token": access_token,
         "token_type": "bearer",
-        "user": schemas.User.model_validate(user) 
+        "user": schemas.User.from_orm(user)
     }
-       
-
