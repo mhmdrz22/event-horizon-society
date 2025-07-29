@@ -47,6 +47,11 @@ class Settings(BaseSettings):
     REDIS_PORT: int = 6379
     REDIS_DB: int = 0
 
+    # First superuser
+    FIRST_SUPERUSER_EMAIL: str = "admin@example.com"
+    FIRST_SUPERUSER_FULL_NAME: str = "Admin User"
+    FIRST_SUPERUSER_PASSWORD: str = "adminpassword"
+
     # Pydantic V2 model_config
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True, extra='ignore')
 
