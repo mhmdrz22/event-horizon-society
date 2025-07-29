@@ -49,7 +49,8 @@ def signup(
     }
 
 
-@router.post("/login/access-token")
+@router.post("/token")
+@router.post("/login/access-token", include_in_schema=False)
 def login_for_access_token(
     db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()
 ):
