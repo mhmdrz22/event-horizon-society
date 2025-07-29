@@ -7,8 +7,6 @@ from app.core import security
 from app.db.session import get_db
 from app.services.user_service import user_service
 
-
-
 router = APIRouter()
 
 @router.post("/signup", response_model=schemas.Token)
@@ -20,21 +18,31 @@ def signup(
     """
     Create new user.
     """
+    # بررسی ایمیل
     user = user_service.get_by_email(db, email=user_in.email)
-    if not user:
-        user = user_service.create(db, obj_in=user_in)
-    elif not user.is_superuser:
-        # This allows promoting an existing user to superuser
-        # as a simple way to bootstrap the first admin user.
-        user.is_superuser = user_in.is_superuser
-        db.add(user)
-        db.commit()
-        db.refresh(user)
+    if user:
+        if user.is_superuser:
+            raise HTTPException(
+                status_code=400,
+                detail="The user with this email already exists in the system.",
+            )
+        else:
+            # به‌روزرسانی is_superuser برای کاربر موجود
+            user.is_superuser = user_in.is_superuser
+            db.add(user)
+            db.commit()
+            db.refresh(user)
     else:
-        raise HTTPException(
-            status_code=400,
-            detail="The user with this email already exists in the system.",
-        )
+        # بررسی شماره تلفن
+        if user_in.phone_number:
+            existing_phone = db.query(models.User).filter(models.User.phone_number == user_in.phone_number).first()
+            if existing_phone:
+                raise HTTPException(
+                    status_code=400,
+                    detail="The phone number is already registered.",
+                )
+        user = user_service.create(db, obj_in=user_in)
+
     access_token = security.create_access_token(
         subject=user.email,
         user_id=user.id,
@@ -42,15 +50,14 @@ def signup(
         full_name=user.full_name,
         is_superuser=user.is_superuser,
     )
-    return {
-        "access_token": access_token,
-        "token_type": "bearer",
-        "user"=user,
-    }
 
+    return schemas.Token(
+        access_token=access_token,
+        token_type="bearer",
+        user=schemas.User.model_validate(user)  # تبدیل مدل SQLAlchemy به Pydantic
+    )
 
-@router.post("/token")
-@router.post("/login/access-token", include_in_schema=False)
+@router.post("/login/access-token", response_model=schemas.Token)
 def login_for_access_token(
     db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()
 ):
@@ -70,8 +77,16 @@ def login_for_access_token(
         full_name=user.full_name,
         is_superuser=user.is_superuser,
     )
-    return {
-        "access_token": access_token,
-        "token_type": "bearer",
-        "user": user,
-    }
+
+    return schemas.Token(
+        access_token=access_token,
+        token_type="bearer",
+        user=schemas.User.model_validate(user)  # تبدیل مدل SQLAlchemy به Pydantic
+    )
+
+# پشتیبانی از مسیر قدیمی /token (اختیاری)
+@router.post("/token", response_model=schemas.Token, include_in_schema=False)
+def login_for_access_token_alias(
+    db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()
+):
+    return login_for_access_token(db, form_data)
