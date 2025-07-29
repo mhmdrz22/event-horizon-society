@@ -51,3 +51,10 @@ class UserInDB(UserBase): # Renamed from UserInDB to UserInDBBase to avoid confu
 
 class UserStatusUpdate(BaseModel):
     is_active: bool
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+    user: User
+
