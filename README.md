@@ -118,7 +118,7 @@ The API is organized into several routers, each handling a specific resource.
 
 ### Authentication
 
--   **`POST /api/v1/auth/token`**: Authenticates a user and returns a JWT token.
+-   **`POST /api/v1/auth/login/access-token`**: Authenticates a user and returns a JWT token.
 
 ### Articles
 

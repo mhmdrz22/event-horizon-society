@@ -99,6 +99,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signIn = async (signInData: { [key: string]: string }) => {
     try {
+      console.log("signInData", signInData);
       const response = await api.post(
         "/auth/login/access-token",
         new URLSearchParams(signInData),
