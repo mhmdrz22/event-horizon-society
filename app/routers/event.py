@@ -35,13 +35,15 @@ def get_events(
     Retrieve events.
     """
     events = event_service.get_multi(db, skip=skip, limit=limit)
-    # افزودن is_registered برای کاربر فعلی
+    event_objs = []
     for event in events:
         registration = event_registration_service.get_by_user_and_event(
             db, user_id=current_user.id, event_id=event.id
         )
-        setattr(event, "is_registered", bool(registration))
-    return events
+        event_obj = schemas.EventResponse.model_validate(event)
+        event_obj.is_registered = bool(registration)
+        event_objs.append(event_obj)
+    return event_objs
 
 @router.get("/{event_id}", response_model=schemas.EventResponse)
 def get_event(
@@ -55,12 +57,12 @@ def get_event(
     event = event_service.get(db, id=event_id)
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
-    # افزودن is_registered
     registration = event_registration_service.get_by_user_and_event(
-        db, user_id=current_user.id, event_id=event_id
+        db, user_id=current_user.id, event_id=event.id
     )
-    setattr(event, "is_registered", bool(registration))
-    return event
+    event_obj = schemas.EventResponse.model_validate(event)
+    event_obj.is_registered = bool(registration)
+    return event_obj
 
 @router.post(
     "/{event_id}/register",
