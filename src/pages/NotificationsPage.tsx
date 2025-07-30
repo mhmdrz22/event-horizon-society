@@ -54,7 +54,7 @@ const NotificationsPage: React.FC = () => {
 
   const markAllAsRead = async () => {
     try {
-      await api.put('/notifications/mark-all-as-read');
+      await api.post('/notifications/mark-all-as-read');
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
       toast({ title: 'همه اعلان‌ها خوانده شدند' });
     } catch (error) {
