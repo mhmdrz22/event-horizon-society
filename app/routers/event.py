@@ -29,21 +29,12 @@ def get_events(
     db: Session = Depends(get_db),
     skip: int = 0,
     limit: int = 100,
-    current_user: models.User = Depends(get_current_user),
 ) -> Any:
     """
     Retrieve events.
     """
     events = event_service.get_multi(db, skip=skip, limit=limit)
-    event_objs = []
-    for event in events:
-        registration = event_registration_service.get_by_user_and_event(
-            db, user_id=current_user.id, event_id=event.id
-        )
-        event_obj = schemas.EventResponse.model_validate(event)
-        event_obj.is_registered = bool(registration)
-        event_objs.append(event_obj)
-    return event_objs
+    return events
 
 @router.get("/{event_id}", response_model=schemas.EventResponse)
 def get_event(

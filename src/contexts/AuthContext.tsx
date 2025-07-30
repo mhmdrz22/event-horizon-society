@@ -79,18 +79,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signUp = async (signUpData: Record<string, unknown>) => {
     try {
-      await api.post('/auth/signup', signUpData);
+      const response = await api.post('/api/v1/auth/signup', signUpData);
+      const { access_token, user: newUser } = response.data;
+      localStorage.setItem('authToken', access_token);
+      api.defaults.headers.Authorization = `Bearer ${access_token}`;
+      setUser(newUser);
       toast({
-        title: 'ثبت نام موفقیت آمیز',
-        description: 'حساب شما ایجاد شد. اکنون می توانید وارد شوید.',
+        title: 'ثبت‌نام موفقیت‌آمیز',
+        description: 'خوش آمدید!',
       });
-      navigate('/login');
+      navigate('/');
     } catch (error) {
       console.error('Unexpected error during sign up:', error);
-      const errorMessage =
-        error instanceof Error ? error.message : 'خطای غیرمنتظره رخ داده است.';
+      let errorMessage = 'خطای غیرمنتظره رخ داده است.';
+      if (error.response?.data?.detail) {
+        errorMessage = error.response.data.detail;
+      }
       toast({
-        title: 'خطا در ثبت نام',
+        title: 'خطا در ثبت‌نام',
         description: errorMessage,
         variant: 'destructive',
       });
