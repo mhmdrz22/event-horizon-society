@@ -3,9 +3,12 @@ from typing import Optional, Any, Union
 
 from jose import jwt, JWTError
 from passlib.context import CryptContext
+from sqlalchemy.orm import Session
+
 
 from app.core.config import settings
 from app.schemas.token import TokenPayload
+
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
