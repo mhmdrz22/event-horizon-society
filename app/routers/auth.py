@@ -9,6 +9,8 @@ from app.services.user_service import user_service
 
 router = APIRouter()
 
+from sqlalchemy.exc import IntegrityError
+
 @router.post("/signup", response_model=schemas.Token)
 def signup(
     *,
@@ -18,21 +20,23 @@ def signup(
     """
     Create new user.
     """
-    # بررسی ایمیل
-    user = user_service.get_by_email(db, email=user_in.email)
-    if user:
-        if user.is_superuser:
+    try:
+        # بررسی ایمیل
+        user = user_service.get_by_email(db, email=user_in.email)
+        if user:
             raise HTTPException(
                 status_code=400,
                 detail="The user with this email already exists in the system.",
             )
-        else:
-            # به‌روزرسانی is_superuser برای کاربر موجود
-            user.is_superuser = user_in.is_superuser
-            db.add(user)
-            db.commit()
-            db.refresh(user)
-    else:
+
+        # بررسی شماره دانشجویی
+        existing_student = db.query(models.User).filter(models.User.student_id == user_in.student_id).first()
+        if existing_student:
+            raise HTTPException(
+                status_code=400,
+                detail="The student ID is already registered.",
+            )
+
         # بررسی شماره تلفن
         if user_in.phone_number:
             existing_phone = db.query(models.User).filter(models.User.phone_number == user_in.phone_number).first()
@@ -43,19 +47,25 @@ def signup(
                 )
         user = user_service.create(db, obj_in=user_in)
 
-    access_token = security.create_access_token(
-        subject=user.email,
-        user_id=user.id,
-        user_role=user.role.value,
-        full_name=user.full_name,
-        is_superuser=user.is_superuser,
-    )
+        access_token = security.create_access_token(
+            subject=user.email,
+            user_id=user.id,
+            user_role=user.role.value,
+            full_name=user.full_name,
+            is_superuser=user.is_superuser,
+        )
 
-    return schemas.Token(
-        access_token=access_token,
-        token_type="bearer",
-        user=schemas.User.model_validate(user)  # تبدیل مدل SQLAlchemy به Pydantic
-    )
+        return schemas.Token(
+            access_token=access_token,
+            token_type="bearer",
+            user=schemas.User.model_validate(user)
+        )
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=400,
+            detail="A user with this email, student ID, or phone number already exists.",
+        )
 
 @router.post("/login/access-token", response_model=schemas.Token)
 def login_for_access_token(

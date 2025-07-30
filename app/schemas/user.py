@@ -7,12 +7,12 @@ from app.models.user import UserRole as ModelUserRole # Alias to avoid Pydantic 
 class UserBase(BaseModel):
     email: EmailStr
     full_name: constr(min_length=1, max_length=255)
-    student_id: Optional[constr(max_length=50)] = None
     phone_number: Optional[constr(max_length=20)] = None # Add validation regex later if needed
     is_superuser: bool = False
 
 class UserCreate(UserBase):
     password: constr(min_length=8) # Basic length validation for password
+    student_id: constr(min_length=1, max_length=50)
     role: ModelUserRole = ModelUserRole.STUDENT # Default role for new users
     is_superuser: bool = False
 
