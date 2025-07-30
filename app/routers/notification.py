@@ -30,6 +30,27 @@ def mark_all_notifications_as_read(
     """
     return notification_service.mark_all_as_read(db, user_id=current_user.id)
 
+
+@router.put("/{notification_id}", response_model=schemas.Notification)
+def mark_notification_as_read(
+    notification_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+) -> Any:
+    """
+    Mark a specific notification as read for the current user.
+    """
+    notification = db.query(models.Notification).filter(
+        models.Notification.id == notification_id,
+        models.Notification.user_id == current_user.id
+    ).first()
+    if not notification:
+        raise HTTPException(status_code=404, detail="Notification not found or not owned by user")
+    notification.is_read = True
+    db.commit()
+    db.refresh(notification)
+    return notification
+
 @router.delete("/read", response_model=int)
 def delete_read_notifications(
     db: Session = Depends(get_db),
