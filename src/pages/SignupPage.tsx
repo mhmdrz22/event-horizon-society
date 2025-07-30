@@ -28,7 +28,7 @@ const formSchema = z.object({
   full_name: z.string().min(2, 'نام باید حداقل 2 کاراکتر باشد'),
   email: z.string().email('ایمیل وارد شده معتبر نیست'),
   password: z.string().min(8, 'رمز عبور باید حداقل 8 کاراکتر باشد'),
-  student_id: z.string().optional(),
+  student_id: z.string().min(1, 'شماره دانشجویی اجباری است').max(50, 'شماره دانشجویی نمی‌تواند بیشتر از 50 کاراکتر باشد'),
   phone_number: z.string().optional(),
 });
 
@@ -67,6 +67,17 @@ const SignupPage: React.FC = () => {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <CardContent className="space-y-4">
+              <FormField
+                control={form.control}
+                name="student_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>شماره دانشجویی</FormLabel>
+                    <FormControl><Input placeholder="شماره دانشجویی" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="full_name"
