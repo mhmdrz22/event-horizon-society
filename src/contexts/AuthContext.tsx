@@ -79,6 +79,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signUp = async (signUpData: Record<string, unknown>) => {
     try {
+      console.log('SignUp data:', signUpData); // برای دیباگ
       const response = await api.post('/api/v1/auth/signup', signUpData);
       const { access_token, user: newUser } = response.data;
       localStorage.setItem('authToken', access_token);
@@ -100,42 +101,46 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         description: errorMessage,
         variant: 'destructive',
       });
+      throw error; // برای دیباگ
     }
   };
 
   const signIn = async (signInData: { [key: string]: string }) => {
     try {
-      console.log("signInData", signInData);
+      console.log("SignIn data:", signInData); // برای دیباگ
       const response = await api.post(
-        "/auth/login/access-token",
+        '/api/v1/auth/login/access-token',
         new URLSearchParams(signInData),
         {
           headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
+            'Content-Type': 'application/x-www-form-urlencoded',
           },
         }
       );
       const { access_token, user: loggedInUser } = response.data;
 
       if (access_token) {
-        localStorage.setItem("authToken", access_token);
-        setUser(loggedInUser); // Use the user object from the response
-
+        localStorage.setItem('authToken', access_token);
+        api.defaults.headers.Authorization = `Bearer ${access_token}`;
+        setUser(loggedInUser);
         toast({
-          title: "ورود موفقیت آمیز",
-          description: "خوش آمدید!",
+          title: 'ورود موفقیت‌آمیز',
+          description: 'خوش آمدید!',
         });
-        navigate("/");
+        navigate('/');
       }
     } catch (error) {
-      console.error("Unexpected error during sign in:", error);
-      const errorMessage =
-        error instanceof Error ? error.message : 'ایمیل یا رمز عبور نامعتبر است.';
+      console.error('Unexpected error during sign in:', error);
+      let errorMessage = 'ایمیل یا رمز عبور نامعتبر است.';
+      if (error.response?.data?.detail) {
+        errorMessage = error.response.data.detail;
+      }
       toast({
-        title: "خطا در ورود",
+        title: 'خطا در ورود',
         description: errorMessage,
-        variant: "destructive",
+        variant: 'destructive',
       });
+      throw error; // برای دیباگ
     }
   };
 
