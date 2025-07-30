@@ -39,9 +39,10 @@ class EventRegistrationBase(BaseModel):
     pass # No common fields needed for base if user_id and event_id are handled by context
 
 class EventRegistrationCreate(BaseModel):
-    # No fields needed here if event_id is a path param and user_id from auth.
-    # If event_id were in body:
-    # event_id: int
+    """
+    Schema for creating an event registration. No fields are required since
+    event_id is provided via path parameter and user_id is obtained from the authenticated user.
+    """
     pass
 
 
