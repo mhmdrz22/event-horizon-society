@@ -1,7 +1,5 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 
@@ -23,8 +21,6 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     lifespan=lifespan
 )
-
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 if settings.BACKEND_CORS_ORIGINS_LIST:
     app.add_middleware(
@@ -63,10 +59,6 @@ app.include_router(membership_request_router.router, prefix=f"{settings.API_V1_S
 app.include_router(event_registration_router.router, prefix=f"{settings.API_V1_STR}", tags=["event-registrations"])
 app.include_router(user_router.router, prefix=f"{settings.API_V1_STR}/users", tags=["users"])
 app.include_router(notification_router.router, prefix=f"{settings.API_V1_STR}/notifications", tags=["notifications"])
-
-@app.get("/favicon.ico", include_in_schema=False)
-async def favicon():
-    return FileResponse("app/static/favicon.ico")
 
 @app.get("/")
 async def root():
