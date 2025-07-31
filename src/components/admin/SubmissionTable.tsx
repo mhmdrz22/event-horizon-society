@@ -47,6 +47,7 @@ const SubmissionTable = () => {
         <TableRow>
           <TableHead>عنوان مقاله</TableHead>
           <TableHead>نویسنده</TableHead>
+          <TableHead>فایل</TableHead>
           <TableHead>وضعیت</TableHead>
           <TableHead>عملیات</TableHead>
         </TableRow>
@@ -56,6 +57,18 @@ const SubmissionTable = () => {
           <TableRow key={article.id}>
             <TableCell>{article.title}</TableCell>
             <TableCell>{article.author.full_name}</TableCell>
+            <TableCell>
+              {article.file_path && (
+                <a
+                  href={`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/${article.file_path}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 hover:underline"
+                >
+                  دانلود
+                </a>
+              )}
+            </TableCell>
             <TableCell>
               <Badge>{article.status}</Badge>
             </TableCell>

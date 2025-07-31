@@ -10,6 +10,7 @@ export const ArticleSchema = z.object({
   content: z.string(),
   author_id: z.number(),
   status: ArticleStatusSchema,
+  file_path: z.string().optional(),
   review_comments: z.string().optional(),
   submitted_at: z.string(),
   reviewed_at: z.string().optional(),

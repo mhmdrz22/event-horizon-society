@@ -14,6 +14,7 @@ class Article(Base):
 
     title = Column(String(255), nullable=False)
     content = Column(Text, nullable=False)
+    file_path = Column(String(255), nullable=True)
 
     status = Column(DBEnum(ArticleStatus), default=ArticleStatus.PENDING, nullable=False)
     review_comments = Column(Text, nullable=True)

@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.core import security
 from app.db.session import get_db
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.schemas.token import TokenPayload
 from app.services.user_service import user_service
 
@@ -66,5 +66,18 @@ def get_current_active_superuser(
     if not current_user.is_superuser:
         raise HTTPException(
             status_code=403, detail="The user doesn't have enough privileges"
+        )
+    return current_user
+
+
+def get_current_student_user(
+    current_user: User = Depends(get_current_user),
+) -> User:
+    """
+    Dependency to get the current user and check if they are a student.
+    """
+    if current_user.role != UserRole.STUDENT:
+        raise HTTPException(
+            status_code=403, detail="This action is only for students."
         )
     return current_user
