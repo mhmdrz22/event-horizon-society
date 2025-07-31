@@ -8,3 +8,4 @@ pydantic[email]
 python-jose
 pydantic-settings
 psycopg2-binary
+alembic

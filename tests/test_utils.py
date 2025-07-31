@@ -29,6 +29,9 @@ def get_superuser_token_headers(test_client: TestClient, db_session: SessionLoca
     )
     return {"Authorization": f"Bearer {access_token}"}
 
+from app.models.user import User
+
+
 def get_normal_user_token_headers(test_client: TestClient, db_session: SessionLocal) -> dict[str, str]:
     email = "user@example.com"
     password = "password"
@@ -49,3 +52,17 @@ def get_normal_user_token_headers(test_client: TestClient, db_session: SessionLo
         is_superuser=user.is_superuser,
     )
     return {"Authorization": f"Bearer {access_token}"}
+
+
+def create_random_user(db: Session) -> User:
+    email = f"user-{uuid.uuid4()}@example.com"
+    password = "password"
+    user_in = UserCreate(
+        email=email,
+        password=password,
+        full_name="Random User",
+        is_superuser=False,
+        student_id=f"STU-{uuid.uuid4().hex[:6].upper()}"
+    )
+    user = user_service.create(db, obj_in=user_in)
+    return user

@@ -7,19 +7,22 @@ from app.db.session import get_db
 from app.main import app
 from fastapi.testclient import TestClient
 
-engine = create_engine(
-    "sqlite:///:memory:",
-    connect_args={"check_same_thread": False},
+# Create a test database URL
+test_db_url = settings.DATABASE_URL.replace(
+    f"/{settings.POSTGRES_DB}", f"/{settings.POSTGRES_DB}_test"
 )
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-Base.metadata.create_all(bind=engine)
+engine = create_engine(test_db_url, pool_pre_ping=True)
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 @pytest.fixture(scope="function")
 def db_session():
     """
-    Create a new database session for each test.
+    Create a new database session for each test, with a clean database.
     """
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
     connection = engine.connect()
     transaction = connection.begin()
     session = TestingSessionLocal(bind=connection)

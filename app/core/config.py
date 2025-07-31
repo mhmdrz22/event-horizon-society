@@ -1,6 +1,6 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import List, Union, Optional # Added Optional
-from pydantic import AnyHttpUrl # validator removed as it's not used with Pydantic V2 style
+from typing import List, Union, Optional
+from pydantic import AnyHttpUrl, model_validator
 
 class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
@@ -13,15 +13,23 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7 # 7 days
 
     # Database settings
-    # The default is to use SQLite for simple, local development.
-    # You can override this with a full PostgreSQL DSN in your .env file
-    # For example: DATABASE_URL="postgresql+psycopg2://user:password@host:port/dbname"
-    DATABASE_URL: str = "sqlite:///./app.db"
+    POSTGRES_SERVER: str
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
+    POSTGRES_DB: str
+    POSTGRES_PORT: int = 5432
+    DATABASE_URL: Optional[str] = None
 
-    # The following property is kept for compatibility but the direct DATABASE_URL is preferred.
-    @property
-    def SQLALCHEMY_DATABASE_URI(self) -> str:
-        return self.DATABASE_URL
+    @model_validator(mode='before')
+    def assemble_db_connection(cls, v):
+        if isinstance(v, dict) and 'DATABASE_URL' not in v:
+            postgres_user = v.get('POSTGRES_USER')
+            postgres_password = v.get('POSTGRES_PASSWORD')
+            postgres_server = v.get('POSTGRES_SERVER')
+            postgres_port = v.get('POSTGRES_PORT')
+            postgres_db = v.get('POSTGRES_DB')
+            v['DATABASE_URL'] = f"postgresql+psycopg2://{postgres_user}:{postgres_password}@{postgres_server}:{postgres_port}/{postgres_db}"
+        return v
 
     # Backend CORS origins
     BACKEND_CORS_ORIGINS: str = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000"
@@ -31,12 +39,12 @@ class Settings(BaseSettings):
         return [origin.strip() for origin in self.BACKEND_CORS_ORIGINS.split(',')]
 
     # Email settings
-    SMTP_HOST: Optional[str] = None # Changed from "localhost" to None for more realistic default
+    SMTP_HOST: Optional[str] = None
     SMTP_PORT: Optional[int] = 587
     SMTP_USER: Optional[str] = None
     SMTP_PASSWORD: Optional[str] = None
-    EMAILS_FROM_EMAIL: Optional[str] = None # Changed from "noreply@example-association.ir"
-    EMAILS_FROM_NAME: Optional[str] = None # Changed from "University Scientific Association"
+    EMAILS_FROM_EMAIL: Optional[str] = None
+    EMAILS_FROM_NAME: Optional[str] = None
 
     # SMS settings
     SMS_API_KEY: Optional[str] = None
