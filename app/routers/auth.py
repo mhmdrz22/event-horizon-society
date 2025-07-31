@@ -1,5 +1,6 @@
 from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import Response
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from app import models, schemas
@@ -10,6 +11,10 @@ from app.services.user_service import user_service
 router = APIRouter()
 
 from sqlalchemy.exc import IntegrityError
+
+@router.options("/signup")
+async def signup_options():
+    return Response(status_code=200)
 
 @router.post("/signup", response_model=schemas.Token)
 def signup(
