@@ -21,6 +21,7 @@ class Article(ArticleBase):
     id: int
     author_id: int
     status: ModelArticleStatus
+    file_path: Optional[str] = None
     review_comments: Optional[str] = None
     submitted_at: datetime
     reviewed_at: Optional[datetime] = None

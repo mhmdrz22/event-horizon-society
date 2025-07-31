@@ -21,9 +21,19 @@ import { Loader2, Upload } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import api from '@/services/api';
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ACCEPTED_FILE_TYPES = ["application/pdf"];
+
 const formSchema = z.object({
   title: z.string().min(5, { message: 'عنوان باید حداقل ۵ کاراکتر باشد' }),
-  content: z.string().min(50, { message: 'محتوا باید حداقل ۵۰ کاراکتر باشد' }),
+  content: z.string().min(50, { message: 'چکیده باید حداقل ۵۰ کاراکتر باشد' }),
+  file: z
+    .instanceof(File, { message: "فایل مقاله الزامی است" })
+    .refine((file) => file.size <= MAX_FILE_SIZE, `حداکثر حجم فایل ۵ مگابایت است`)
+    .refine(
+      (file) => ACCEPTED_FILE_TYPES.includes(file.type),
+      "فقط فایل‌های PDF مجاز هستند"
+    ),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -38,6 +48,7 @@ const ArticleSubmissionPage: React.FC = () => {
     defaultValues: {
       title: '',
       content: '',
+      file: undefined,
     },
   });
 
@@ -54,18 +65,24 @@ const ArticleSubmissionPage: React.FC = () => {
 
     setIsSubmitting(true);
 
+    const formData = new FormData();
+    formData.append('title', data.title);
+    formData.append('content', data.content);
+    formData.append('file', data.file);
+
     try {
-      await api.post('/articles/', {
-        title: data.title,
-        content: data.content,
+      await api.post('/articles/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
 
       toast({
         title: 'مقاله با موفقیت ارسال شد',
         description: 'مقاله شما برای بررسی به مدیران ارسال شد',
       });
-
-      navigate('/profile'); // Or maybe a page showing user's submissions
+      form.reset();
+      // navigate('/profile');
     } catch (error: any) {
       console.error('Error submitting article:', error);
       toast({
@@ -112,12 +129,36 @@ const ArticleSubmissionPage: React.FC = () => {
                 name="content"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>محتوای مقاله</FormLabel>
+                    <FormLabel>چکیده مقاله</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="چکیده یا محتوای کامل مقاله خود را وارد کنید"
-                        className="min-h-[200px]"
+                        placeholder="چکیده مقاله خود را وارد کنید"
+                        className="min-h-[150px]"
                         {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="file"
+                render={({ field: { onChange, ...props } }) => (
+                  <FormItem>
+                    <FormLabel>فایل مقاله (PDF)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="file"
+                        accept="application/pdf"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            onChange(file);
+                          }
+                        }}
+                        {...props}
                       />
                     </FormControl>
                     <FormMessage />
