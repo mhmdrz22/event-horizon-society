@@ -10,6 +10,8 @@ from app.core.config import settings
 from app.schemas.token import TokenPayload
 
 
+# Explicitly set the schemes to avoid deprecation warnings for the 'crypt' scheme.
+# "bcrypt" is the recommended default. "auto" handles deprecation gracefully.
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 ALGORITHM = settings.ALGORITHM
