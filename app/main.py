@@ -1,17 +1,18 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+import logging
 
 from app.core.config import settings
 from app.db.session import engine
 from app.db.base import Base
-from app.db.init_db import init_db
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Create tables
     Base.metadata.create_all(bind=engine)
-    # init_db() # You might want to run your initial data seeding here
     yield
 
 app = FastAPI(
@@ -21,7 +22,6 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Set all CORS enabled origins
 if settings.BACKEND_CORS_ORIGINS_LIST:
     app.add_middleware(
         CORSMiddleware,
@@ -30,6 +30,13 @@ if settings.BACKEND_CORS_ORIGINS_LIST:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    logger.info(f"Request: {request.method} {request.url} Headers: {request.headers}")
+    response = await call_next(request)
+    logger.info(f"Response: {response.status_code} Headers: {dict(response.headers)}")
+    return response
 
 from app.routers import (
     auth as auth_router,
@@ -49,7 +56,7 @@ app.include_router(article_router.router, prefix=f"{settings.API_V1_STR}/article
 app.include_router(event_router.router, prefix=f"{settings.API_V1_STR}/events", tags=["events"])
 app.include_router(comment_router.router, prefix=f"{settings.API_V1_STR}/comments", tags=["comments"])
 app.include_router(membership_request_router.router, prefix=f"{settings.API_V1_STR}/membership-requests", tags=["membership-requests"])
-app.include_router(event_registration_router.router, prefix=f"{settings.API_V1_STR}", tags=["event-registrations"]) # No prefix for this one as it has its own
+app.include_router(event_registration_router.router, prefix=f"{settings.API_V1_STR}", tags=["event-registrations"])
 app.include_router(user_router.router, prefix=f"{settings.API_V1_STR}/users", tags=["users"])
 app.include_router(notification_router.router, prefix=f"{settings.API_V1_STR}/notifications", tags=["notifications"])
 

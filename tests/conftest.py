@@ -8,7 +8,7 @@ from app.main import app
 from fastapi.testclient import TestClient
 
 engine = create_engine(
-    settings.SQLALCHEMY_DATABASE_URI,
+    "sqlite:///:memory:",
     connect_args={"check_same_thread": False},
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -45,3 +45,15 @@ def test_client(db_session):
 
     app.dependency_overrides[get_db] = override_get_db
     yield TestClient(app)
+
+
+from tests.test_utils import get_normal_user_token_headers, get_superuser_token_headers
+from sqlalchemy.orm import Session
+
+@pytest.fixture(scope="function")
+def superuser_token_headers(test_client: TestClient, db_session: Session):
+    return get_superuser_token_headers(test_client, db_session)
+
+@pytest.fixture(scope="function")
+def normal_user_token_headers(test_client: TestClient, db_session: Session):
+    return get_normal_user_token_headers(test_client, db_session)

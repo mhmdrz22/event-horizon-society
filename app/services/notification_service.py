@@ -6,9 +6,9 @@ from app.schemas.notification import NotificationCreate, NotificationUpdate
 
 class NotificationService(ServiceBase[Notification, NotificationCreate, NotificationUpdate]):
     def create_for_user(self, db: Session, *, user_id: int, message: str) -> Notification:
-        obj_in = NotificationCreate(message=message)
+        obj_in = NotificationCreate(message=message, user_id=user_id)
         obj_in_data = obj_in.model_dump()
-        db_obj = self.model(**obj_in_data, user_id=user_id)
+        db_obj = self.model(**obj_in_data)
         db.add(db_obj)
         db.commit()
         db.refresh(db_obj)
