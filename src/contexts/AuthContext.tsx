@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (token) {
         try {
           // Verify token with backend and get fresh user data
-          const response = await api.get('/users/me');
+          const response = await api.get('/api/v1/users/me');
           setUser(response.data);
         } catch (error) {
           console.error("Token verification failed:", error);
