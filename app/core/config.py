@@ -24,7 +24,7 @@ class Settings(BaseSettings):
         return self.DATABASE_URL
 
     # Backend CORS origins
-    BACKEND_CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000"
+    BACKEND_CORS_ORIGINS: str = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000"
 
     @property
     def BACKEND_CORS_ORIGINS_LIST(self) -> list[str]:
