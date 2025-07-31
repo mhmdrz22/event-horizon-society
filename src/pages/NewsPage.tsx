@@ -16,7 +16,7 @@ const NewsPage: React.FC = () => {
     const fetchNews = async () => {
       setIsLoading(true);
       try {
-        const response = await api.get<News[]>('/news/');
+        const response = await api.get<News[]>('/api/v1/news/');
         setAllNews(response.data);
       } catch (error) {
         console.error('Error fetching news:', error);

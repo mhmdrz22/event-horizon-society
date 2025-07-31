@@ -14,10 +14,10 @@ const HomePage: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const newsResponse = await api.get<News[]>('/news/', { params: { limit: 3 } });
+        const newsResponse = await api.get<News[]>('/api/v1/news/', { params: { limit: 3 } });
         setLatestNews(newsResponse.data);
 
-        const eventsResponse = await api.get<EventResponse[]>('/events/', { params: { limit: 2 } });
+        const eventsResponse = await api.get<EventResponse[]>('/api/v1/events/', { params: { limit: 2 } });
         setUpcomingEvents(eventsResponse.data);
       } catch (error) {
         console.error("Error fetching homepage data:", error);
