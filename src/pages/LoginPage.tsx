@@ -18,7 +18,7 @@ import { z } from 'zod';
 
 // Email validation schema
 const emailSchema = z.string().email('ایمیل وارد شده معتبر نیست');
-const passwordSchema = z.string().min(6, 'رمز عبور باید حداقل 6 کاراکتر باشد');
+const passwordSchema = z.string().min(8, 'رمز عبور باید حداقل 8 کاراکتر باشد');
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
