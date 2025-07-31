@@ -40,3 +40,27 @@ def update_article_status(
     return article
 
 
+@router.get("/users", response_model=List[schemas.User])
+def read_users(db: Session = Depends(get_db)):
+    """
+    Retrieve all users.
+    """
+    users = services.user_service.get_all(db)
+    return users
+
+
+@router.put("/users/{user_id}/status", response_model=schemas.User)
+def update_user_status(
+    user_id: int,
+    status: schemas.UserStatusUpdate,
+    db: Session = Depends(get_db),
+):
+    """
+    Update a user's status (active/inactive).
+    """
+    user = services.user_service.update_status(
+        db=db, user_id=user_id, is_active=status.is_active
+    )
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
