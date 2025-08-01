@@ -7,7 +7,6 @@ from app.db.session import get_db
 from app.dependencies import get_current_active_superuser
 
 router = APIRouter(
-    prefix="/admin",
     tags=["admin"],
     dependencies=[Depends(get_current_active_superuser)],
     responses={404: {"description": "Not found"}},
