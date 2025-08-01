@@ -40,7 +40,12 @@ def update_article_status(
     return article
 
 
-@router.get("/users", response_model=List[schemas.User])
+@router.get(
+    "/users",
+    response_model=List[schemas.User],
+    summary="Get All Users",
+    description="Retrieve a list of all users in the system. Requires superuser privileges.",
+)
 def read_users(db: Session = Depends(get_db)):
     """
     Retrieve all users.
@@ -49,7 +54,12 @@ def read_users(db: Session = Depends(get_db)):
     return users
 
 
-@router.put("/users/{user_id}/status", response_model=schemas.User)
+@router.put(
+    "/users/{user_id}/status",
+    response_model=schemas.User,
+    summary="Update User Status",
+    description="Update a user's active status. Requires superuser privileges.",
+)
 def update_user_status(
     user_id: int,
     status: schemas.UserStatusUpdate,
@@ -62,5 +72,5 @@ def update_user_status(
         db=db, user_id=user_id, is_active=status.is_active
     )
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail=f"User with id {user_id} not found")
     return user
