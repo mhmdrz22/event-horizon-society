@@ -1,6 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import List, Union, Optional
-from pydantic import AnyHttpUrl, model_validator
+import os
+from pydantic import AnyHttpUrl, model_validator, PostgresDsn
 
 class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
@@ -13,20 +14,32 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7 # 7 days
 
     # Database settings
-    POSTGRES_SERVER: str
-    POSTGRES_USER: str
-    POSTGRES_PASSWORD: str
-    POSTGRES_DB: str
-    POSTGRES_PORT: int = 5432
+    POSTGRES_SERVER: Optional[str] = None
+    POSTGRES_USER: Optional[str] = None
+    POSTGRES_PASSWORD: Optional[str] = None
+    POSTGRES_DB: Optional[str] = None
+    POSTGRES_PORT: Optional[int] = 5432
     SQLALCHEMY_DATABASE_URI: Optional[str] = None
 
     @model_validator(mode='before')
     def assemble_db_connection(cls, v):
+        if os.getenv("TESTING") == "True":
+            v['SQLALCHEMY_DATABASE_URI'] = "sqlite:///:memory:"
+            return v
+
         if isinstance(v, dict) and 'SQLALCHEMY_DATABASE_URI' not in v:
-            v['SQLALCHEMY_DATABASE_URI'] = (
-                f"postgresql+psycopg2://{v.get('POSTGRES_USER')}:{v.get('POSTGRES_PASSWORD')}"
-                f"@{v.get('POSTGRES_SERVER')}:{v.get('POSTGRES_PORT')}/{v.get('POSTGRES_DB')}"
-            )
+            # Only build the DSN if we are NOT in testing mode
+            # and if the necessary environment variables are provided.
+            if v.get("POSTGRES_SERVER"):
+                dsn = PostgresDsn.build(
+                    scheme="postgresql+psycopg2",
+                    username=v.get("POSTGRES_USER"),
+                    password=v.get("POSTGRES_PASSWORD"),
+                    host=v.get("POSTGRES_SERVER"),
+                    port=v.get("POSTGRES_PORT"),
+                    path=f"/{v.get('POSTGRES_DB') or ''}",
+                )
+                v['SQLALCHEMY_DATABASE_URI'] = str(dsn)
         return v
 
     # Backend CORS origins
