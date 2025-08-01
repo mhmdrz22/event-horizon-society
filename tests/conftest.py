@@ -1,24 +1,22 @@
 import pytest
+import os
+
+# This must be the very first thing to run, to ensure all subsequent imports see the TESTING flag.
+os.environ["TESTING"] = "True"
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from app.core.config import settings
 from app.db.base import Base
 from app.db.session import get_db
-from app.main import app
+from app.core.config import settings # Now this will load with TESTING=True
 from fastapi.testclient import TestClient
 
-# Create a test database URL
-if settings.DB_TYPE == "postgresql":
-    # For PostgreSQL, create a separate test database
-    test_db_url = settings.SQLALCHEMY_DATABASE_URI.replace(
-        f"/{settings.POSTGRES_DB}", f"/{settings.POSTGRES_DB}_test"
-    )
-    engine = create_engine(test_db_url, pool_pre_ping=True)
-else:
-    # For SQLite, use a separate file-based database for tests
-    test_db_url = "sqlite:///./test.db"
-    engine = create_engine(test_db_url, connect_args={"check_same_thread": False})
 
+# Create the test engine using the in-memory SQLite URL from settings
+engine = create_engine(
+    settings.SQLALCHEMY_DATABASE_URI,
+    connect_args={"check_same_thread": False} # Needed for SQLite in-memory
+)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 @pytest.fixture(scope="function")
@@ -45,6 +43,7 @@ def test_client(db_session):
     """
     Create a test client that uses the test database.
     """
+    from app.main import app # Lazy import
 
     def override_get_db():
         try:
