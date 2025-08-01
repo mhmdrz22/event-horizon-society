@@ -13,8 +13,8 @@ env/
 *.swn
 *.log
 *.db
+*.sqlite
 *.sqlite3
-/test.db
 /node_modules
 /build
 /dist
