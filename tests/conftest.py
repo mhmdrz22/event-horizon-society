@@ -8,11 +8,17 @@ from app.main import app
 from fastapi.testclient import TestClient
 
 # Create a test database URL
-test_db_url = settings.DATABASE_URL.replace(
-    f"/{settings.POSTGRES_DB}", f"/{settings.POSTGRES_DB}_test"
-)
+if settings.DB_TYPE == "postgresql":
+    # For PostgreSQL, create a separate test database
+    test_db_url = settings.SQLALCHEMY_DATABASE_URI.replace(
+        f"/{settings.POSTGRES_DB}", f"/{settings.POSTGRES_DB}_test"
+    )
+    engine = create_engine(test_db_url, pool_pre_ping=True)
+else:
+    # For SQLite, use a separate file-based database for tests
+    test_db_url = "sqlite:///./test.db"
+    engine = create_engine(test_db_url, connect_args={"check_same_thread": False})
 
-engine = create_engine(test_db_url, pool_pre_ping=True)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 @pytest.fixture(scope="function")

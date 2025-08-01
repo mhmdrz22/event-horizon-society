@@ -1,5 +1,5 @@
 from .token import Token, TokenPayload
-from .user import UserBase, UserCreate, UserUpdate, User, UserInDB, ModelUserRole
+from .user import UserBase, UserCreate, UserUpdate, User, UserInDB, ModelUserRole, UserStatusUpdate
 # Placeholder for other schemas to be added:
 from .news import NewsBase, NewsCreate, NewsUpdate, News
 from .event import EventBase, EventCreate, EventUpdate, EventResponse, EventRegistrationBase, EventRegistrationCreate, EventRegistrationResponse

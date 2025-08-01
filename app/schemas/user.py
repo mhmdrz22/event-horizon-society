@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, constr
+from pydantic import BaseModel, EmailStr, constr, model_validator
 from typing import Optional
 from datetime import datetime
 # Attempt to import UserRole from models. This is a common pattern.
@@ -11,10 +11,28 @@ class UserBase(BaseModel):
     is_superuser: bool = False
 
 class UserCreate(UserBase):
-    password: constr(min_length=8) # Basic length validation for password
-    student_id: constr(min_length=1, max_length=50)
-    role: ModelUserRole = ModelUserRole.STUDENT # Default role for new users
+    password: constr(min_length=8)
+    student_id: Optional[constr(min_length=1, max_length=50)] = None # Made optional
+    role: ModelUserRole = ModelUserRole.STUDENT
     is_superuser: bool = False
+
+    @model_validator(mode='before')
+    @classmethod
+    def check_student_id_for_student_role(cls, values):
+        """Ensure student_id is provided if the role is STUDENT."""
+        # This validator is defined with pre=True, so it runs on the raw dict before model creation
+        role = values.get('role', ModelUserRole.STUDENT) # Default to student if not provided
+        student_id = values.get('student_id')
+        if role == ModelUserRole.STUDENT and not student_id:
+            raise ValueError('student_id is required for users with the STUDENT role')
+
+        # If the role is not student, we can even ensure student_id is not set
+        if role != ModelUserRole.STUDENT and student_id is not None:
+            # Depending on strictness, you could clear it or raise an error.
+            # For now, let's just allow it but it won't be used.
+            pass
+
+        return values
 
 class UserLogin(BaseModel):
     email: EmailStr
