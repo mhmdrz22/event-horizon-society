@@ -15,7 +15,7 @@ class User(Base):
     full_name = Column(String(255), nullable=False)
     email = Column(String(255), unique=True, index=True, nullable=False)
     password_hash = Column(String(255), nullable=False)
-    student_id = Column(String(50), unique=True, index=True, nullable=False)
+    student_id = Column(String(50), unique=True, index=True, nullable=True) # Changed to nullable=True
     phone_number = Column(String(20), unique=True, index=True, nullable=True)
 
     role = Column(DBEnum(UserRole), default=UserRole.STUDENT, nullable=False)
